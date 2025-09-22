@@ -133,11 +133,11 @@
                     </li>
                 @endif
 
-                @if(Qs::userIsTeamSA())
+                <!-- @if(Qs::userIsTeamSA())
                     {{--Manage Users--}}
                     <li class="nav-item">
                         <a href="{{ route('users.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['users.index', 'users.show', 'users.edit']) ? 'active' : '' }}"><i class="icon-users4"></i> <span> Users</span></a>
-                    </li>
+                    </li> -->
 
                     <!-- {{--Manage Classes--}}
                     <li class="nav-item">
