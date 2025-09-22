@@ -9,7 +9,7 @@
         {{--  School Details--}}
         <table width="100%">
             <tr>
-
+ 
                 <td>
                     <strong><span
                                 style="color: #1b0c80; font-size: 25px;">{{ strtoupper(Qs::getSetting('system_name')) }}</span></strong><br/>
@@ -17,18 +17,18 @@
                     <strong><span
                                 style="color: #000; font-size: 15px;"><i>{{ ucwords($s['address']) }}</i></span></strong>
                     <br/> <br/>
-
+ 
                      <span style="color: #000; font-weight: bold; font-size: 25px;"> PAYMENT RECEIPT</span>
                 </td>
             </tr>
         </table>
-
+ 
         {{--Background Logo--}}
         <div style="position: relative;  text-align: center; ">
             <img src="{{ $s['logo'] }}"
                  style="max-width: 500px; max-height:600px; margin-top: 60px; position:absolute ; opacity: 0.1; margin-left: auto;margin-right: auto; left: 0; right: 0;"/>
         </div>
-
+ 
         {{--Receipt No --}}
     <div class="bold arial" style="text-align: center; float:right; width: 200px; padding: 5px; margin-right:30px">
         <div style="padding: 10px 20px; width: 200px; background-color: lightcyan;">
@@ -38,19 +38,19 @@
             <span  style="font-size: 25px;">{{ $pr->ref_no }}</span>
         </div>
     </div>
-
+ 
         <div style="clear: both"></div>
-
+ 
         {{-- Student Info --}}
         <div style="margin-top:5px; display: block; background-color: rgba(92, 172, 237, 0.12); padding: 5px; ">
             <span style="font-weight:bold; font-size: 20px; color: #000; padding-left: 10px">STUDENT INFORMATION</span>
         </div>
-
+ 
         {{--Photo--}}
         <div style="margin: 15px;">
             <img style="width: 100px; height: 100px; float: left;" src="{{ $sr->user->photo }}" alt="...">
         </div>
-
+ 
        <div style="float: left; margin-left: 20px">
            <table style="font-size: 16px" class="td-left" cellspacing="5" cellpadding="5">
                <tr>
@@ -68,12 +68,12 @@
            </table>
        </div>
         <div class="clear"></div>
-
+ 
         {{-- Payment Info --}}
         <div style="margin-top:5px; display: block; background-color: rgba(92, 172, 237, 0.12); padding: 5px; ">
             <span style="font-weight:bold; font-size: 20px; color: #000; padding-left: 10px">PAYMENT INFORMATION</span>
         </div>
-
+ 
         <table class="td-left" style="font-size: 16px" cellspacing="2" cellpadding="2">
                 <tr>
                     <td class="bold">REFERENCE:</td>
@@ -88,12 +88,12 @@
                     <td>{{ $payment->description }}</td>
                 </tr>
             </table>
-
+ 
         {{-- Payment Desc --}}
         <div style="margin-top:5px; display: block; background-color: rgba(92, 172, 237, 0.12); padding: 5px; ">
             <span style="font-weight:bold; font-size: 20px; color: #000; padding-left: 10px">DESCRIPTION</span>
         </div>
-
+ 
         <table class="td-left" style="font-size: 16px" width="100%" cellspacing="2" cellpadding="2">
            <thead>
            <tr>
@@ -112,7 +112,7 @@
                 @endforeach
             </tbody>
         </table>
-
+ 
         <hr>
         <div class="bold arial" style="text-align: center; float:right; width: 200px; padding: 5px; margin-right:30px">
             <div style="padding: 10px 20px; width: 200px; background-color: lightcyan;">
