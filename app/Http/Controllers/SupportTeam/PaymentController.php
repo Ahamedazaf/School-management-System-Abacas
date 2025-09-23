@@ -64,6 +64,8 @@ class PaymentController extends Controller
     public function create()
     {
         $d['my_classes'] = $this->my_class->all();
+        $d['students'] = $this->student->getRecord([])->get()->sortBy('user.name');
+
         return view('pages.support_team.payments.create', $d);
     }
 

@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\SupportTeam\PaymentController;
+
 Auth::routes();
 
 //Route::get('/test', 'TestController@index')->name('test');
@@ -95,6 +97,8 @@ Route::group(['middleware' => 'auth'], function () {
             Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('payments.reset_record');
             Route::post('pay_now/{id}', 'PaymentController@pay_now')->name('payments.pay_now');
              Route::get('summary', 'PaymentController@summary')->name('payments.summary');
+            
+            
         });
 
         /*************** Pins *****************/
