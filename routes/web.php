@@ -1,5 +1,7 @@
 <?php
 
+use App\Http\Controllers\SupportTeam\PaymentController;
+
 Auth::routes();
 
 //Route::get('/test', 'TestController@index')->name('test');
