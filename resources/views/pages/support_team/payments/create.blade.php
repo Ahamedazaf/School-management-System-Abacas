@@ -51,7 +51,7 @@
                         </div>
                     </div> --}}
 
-                    <div class="form-group row">
+                    {{-- <div class="form-group row">
                         <label for="method" class="col-lg-3 col-form-label font-weight-semibold">Payment Method</label>
                         <div class="col-lg-9">
                             <select class="form-control select" name="method" id="method">
@@ -59,7 +59,7 @@
                                 <option disabled value="Online">Online</option>
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="form-group row">
                         <label for="amount" class="col-lg-3 col-form-label font-weight-semibold">Amount (<del

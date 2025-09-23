@@ -159,7 +159,7 @@
 
                         @if (Qs::userIsTeamSA())
                             {{-- Student Promotion --}}
-                            <li
+                            {{-- <li
                                 class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'nav-item-expanded' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'active' : '' }}">Student
@@ -173,12 +173,12 @@
                                             Promotions</a></li>
                                 </ul>
 
-                        </li>
+                        </li> --}}
 
                             {{-- Student Graduated --}}
-                            <li class="nav-item"><a href="{{ route('students.graduated') }}"
+                            {{-- <li class="nav-item"><a href="{{ route('students.graduated') }}"
                                     class="nav-link {{ in_array(Route::currentRouteName(), ['students.graduated']) ? 'active' : '' }}">Students
-                                    Graduated</a></li>
+                                    Graduated</a></li> --}}
                         @endif
 
                     </ul>

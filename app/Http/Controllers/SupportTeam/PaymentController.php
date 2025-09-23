@@ -1,7 +1,9 @@
 <?php
  
 namespace App\Http\Controllers\SupportTeam;
- 
+
+use PDF;
+use Carbon\Carbon;
 use App\Helpers\Qs;
 use App\Helpers\Pay;
 use App\Models\Setting;
@@ -11,12 +13,11 @@ use App\Repositories\PaymentRepo;
 use App\Repositories\StudentRepo;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Payment\PaymentCreate;
 use App\Http\Requests\Payment\PaymentUpdate;
 use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Support\Facades\Storage;
-use PDF;
- 
+
 class PaymentController extends Controller
 {
     protected $my_class, $pay, $student, $year;
@@ -97,27 +98,10 @@ class PaymentController extends Controller
  
     public function receipts($pr_id)
     {
-        if(!$pr_id) {return Qs::goWithDanger();}
- 
-        try {
-             $d['pr'] = $pr = $this->pay->getRecord(['id' => $pr_id])->with('receipt')->first();
-        } catch (ModelNotFoundException $ex) {
-            return back()->with('flash_danger', __('msg.rnf'));
+        if (!$pr_id) {
+            return Qs::goWithDanger();
         }
-        $d['receipts'] = $pr->receipt;
-        $d['payment'] = $pr->payment;
-        $d['sr'] = $this->student->findByUserId($pr->student_id)->first();
-        $d['s'] = Setting::all()->flatMap(function($s){
-            return [$s->type => $s->description];
-        });
- 
-        return view('pages.support_team.payments.receipt', $d);
-    }
- 
-    public function pdf_receipts($pr_id)
-    {
-        if(!$pr_id) {return Qs::goWithDanger();}
- 
+
         try {
             $d['pr'] = $pr = $this->pay->getRecord(['id' => $pr_id])->with('receipt')->first();
         } catch (ModelNotFoundException $ex) {
@@ -129,9 +113,30 @@ class PaymentController extends Controller
         $d['s'] = Setting::all()->flatMap(function ($s) {
             return [$s->type => $s->description];
         });
- 
-        $pdf_name = 'Receipt_'.$pr->ref_no;
- 
+
+        return view('pages.support_team.payments.receipt', $d);
+    }
+
+    public function pdf_receipts($pr_id)
+    {
+        if (!$pr_id) {
+            return Qs::goWithDanger();
+        }
+
+        try {
+            $d['pr'] = $pr = $this->pay->getRecord(['id' => $pr_id])->with('receipt')->first();
+        } catch (ModelNotFoundException $ex) {
+            return back()->with('flash_danger', __('msg.rnf'));
+        }
+        $d['receipts'] = $pr->receipt;
+        $d['payment'] = $pr->payment;
+        $d['sr'] = $sr = $this->student->findByUserId($pr->student_id)->first();
+        $d['s'] = Setting::all()->flatMap(function ($s) {
+            return [$s->type => $s->description];
+        });
+
+        $pdf_name = 'Receipt_' . $pr->ref_no;
+
         return PDF::loadView('pages.support_team.payments.receipt', $d)->download($pdf_name);
  
         //return $this->downloadReceipt('pages.support_team.payments.receipt', $d, $pdf_name);
@@ -253,5 +258,47 @@ class PaymentController extends Controller
         $this->pay->deleteReceipts(['pr_id' => $id]);
  
         return back()->with('flash_success', __('msg.update_ok'));
+    }
+
+    public function summary(Request $request)
+    {
+        // Base query → only students
+        $studentsQuery = DB::table('users')
+            ->join('student_records', 'users.id', '=', 'student_records.user_id')
+            ->where('users.user_type', 'student');
+
+        if ($request->filled('class_id')) {
+            $studentsQuery->where('student_records.my_class_id', $request->class_id);
+        }
+
+        $students = $studentsQuery->select('users.*', 'student_records.my_class_id')->get();
+
+
+        // Map each student with fee details
+        $studentsWithPayments = $students->map(function ($student) {
+            $monthlyPaid = DB::table('payment_records')
+                ->where('student_id', $student->id)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->sum('amt_paid');
+
+            $student->monthly_paid = $monthlyPaid;
+            $student->fee_demand   = 10000; // fixed monthly fee
+            $student->pending      = $student->fee_demand - $monthlyPaid;
+
+            return $student;
+        });
+
+        // Totals (only for the currently selected class if filter applied)
+        $total_fee          = $studentsWithPayments->count() * 10000;
+        $current_month_paid = $studentsWithPayments->sum('monthly_paid');
+        $pending_amount     = $total_fee - $current_month_paid;
+
+        return view('pages.support_team.payments.summary', [
+            'total_fee'          => $total_fee,
+            'current_month_paid' => $current_month_paid,
+            'pending_amount'     => $pending_amount,
+            'students'           => $studentsWithPayments
+        ]);
     }
 }
