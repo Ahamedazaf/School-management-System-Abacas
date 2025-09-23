@@ -59,14 +59,14 @@
                             <td>{{ $s->user->name }}</td>
                             <td>{{ $s->adm_no }}</td>
                             <td>
-                                <div class="dropdown">
-                                    <a href="#" class=" btn btn-danger" data-toggle="dropdown"> Manage Payments <i class="icon-arrow-down5"></i>
+                                <div>
+                                    <a href="{{ route('payments.invoice', [Qs::hash($s->user_id)]) }}" class=" btn btn-danger"> Manage Payments
                                     </a>
-                            <div class="dropdown-menu dropdown-menu-left">
-                                <a href="{{ route('payments.invoice', [Qs::hash($s->user_id)]) }}" class="dropdown-item">All Payments</a>
+                            <div>
+                                
                                 @foreach(Pay::getYears($s->user_id) as $py)
                                 @if($py)
-                                    <a href="{{ route('payments.invoice', [Qs::hash($s->user_id), $py]) }}" class="dropdown-item">{{ $py }}</a>
+                                    <!-- <a href="{{ route('payments.invoice', [Qs::hash($s->user_id), $py]) }}" class="dropdown-item">{{ $py }}</a> -->
                                 @endif
                                 @endforeach
                             </div>

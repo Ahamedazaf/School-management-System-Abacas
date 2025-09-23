@@ -18,6 +18,7 @@
                                 <div class="form-group">
                                     <label for="year" class="col-form-label font-weight-bold">Select Year <span class="text-danger">*</span></label>
                                     <select data-placeholder="Select Year" required id="year" name="year" class="form-control select">
+                                        <option {{ ($selected && $year == Qs::getCurrentSession()) ? 'selected' : '' }} value="{{ Qs::getCurrentSession() }}">{{ Qs::getCurrentSession() }}</option>
                                         @foreach($years as $yr)
                                             <option {{ ($selected && $year == $yr->year) ? 'selected' : '' }} value="{{ $yr->year }}">{{ $yr->year }}</option>
                                         @endforeach
