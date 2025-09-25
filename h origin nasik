@@ -1,0 +1,449 @@
+[1mdiff --git a/app/Http/Controllers/HomeController.php b/app/Http/Controllers/HomeController.php[m
+[1mindex 7321339..b387833 100644[m
+[1m--- a/app/Http/Controllers/HomeController.php[m
+[1m+++ b/app/Http/Controllers/HomeController.php[m
+[36m@@ -2,8 +2,11 @@[m
+ [m
+ namespace App\Http\Controllers;[m
+ [m
+[32m+[m[32muse Carbon\Carbon;[m
+ use App\Helpers\Qs;[m
+[32m+[m[32muse Illuminate\Http\Request;[m
+ use App\Repositories\UserRepo;[m
+[32m+[m[32muse Illuminate\Support\Facades\DB;[m
+ [m
+ class HomeController extends Controller[m
+ {[m
+[36m@@ -37,11 +40,55 @@[m [mclass HomeController extends Controller[m
+ [m
+     public function dashboard()[m
+     {[m
+[31m-        $d=[];[m
+[31m-        if(Qs::userIsTeamSAT()){[m
+[32m+[m[32m        $d = [];[m
+[32m+[m[32m        if (Qs::userIsTeamSAT()) {[m
+             $d['users'] = $this->user->getAll();[m
+         }[m
+ [m
+[32m+[m[32m        // All students[m
+[32m+[m[32m        $students = DB::table('users')->where('user_type', 'student')->get();[m
+[32m+[m
+[32m+[m[32m        // Map each student with payments info[m
+[32m+[m[32m        $studentsWithPayments = $students->map(function ($student) {[m
+[32m+[m[32m            $monthlyPaid = DB::table('payment_records')[m
+[32m+[m[32m                ->where('student_id', $student->id)[m
+[32m+[m[32m                ->whereMonth('created_at', Carbon::now()->month)[m
+[32m+[m[32m                ->whereYear('created_at', Carbon::now()->year)[m
+[32m+[m[32m                ->sum('amt_paid');[m
+[32m+[m
+[32m+[m[32m            $student->monthly_paid = $monthlyPaid;[m
+[32m+[m[32m            $student->fee_demand  = 10000;[m
+[32m+[m[32m            $student->pending     = $student->fee_demand - $monthlyPaid;[m
+[32m+[m
+[32m+[m[32m            // Months paid[m
+[32m+[m[32m            $paidMonths = DB::table('payment_records')[m
+[32m+[m[32m                ->where('student_id', $student->id)[m
+[32m+[m[32m                ->selectRaw('MONTH(created_at) as month')[m
+[32m+[m[32m                ->pluck('month')[m
+[32m+[m[32m                ->toArray();[m
+[32m+[m
+[32m+[m[32m            //status for 12 months[m
+[32m+[m[32m            $monthsStatus = [];[m
+[32m+[m[32m            foreach (range(1, 12) as $m) {[m
+[32m+[m[32m                $monthsStatus[$m] = in_array($m, $paidMonths) ? 'Paid' : 'Not Paid';[m
+[32m+[m[32m            }[m
+[32m+[m
+[32m+[m[32m            $student->months_status = $monthsStatus;[m
+[32m+[m
+[32m+[m[32m            return $student;[m
+[32m+[m[32m        });[m
+[32m+[m
+[32m+[m[32m        // Only unpaid-pending students[m
+[32m+[m[32m        $unpaidStudents = $studentsWithPayments->filter(function ($s) {[m
+[32m+[m[32m            return $s->pending > 0;[m
+[32m+[m[32m        });[m
+[32m+[m
+[32m+[m[32m        $d['students']        = $unpaidStudents; // only unpaid[m
+[32m+[m[32m        $d['students_count']  = $unpaidStudents->count();[m
+[32m+[m[32m        $d['total_fee']       = $d['students_count'] * 10000;[m
+[32m+[m[32m        $d['current_month_paid'] = $unpaidStudents->sum('monthly_paid');[m
+[32m+[m[32m        $d['pending_amount']  = $d['total_fee'] - $d['current_month_paid'];[m
+[32m+[m
+         return view('pages.support_team.dashboard', $d);[m
+     }[m
+ }[m
+[1mdiff --git a/resources/views/pages/admin/dashboard.blade.php b/resources/views/pages/admin/dashboard.blade.php[m
+[1mindex 80eee01..3cb5244 100644[m
+[1m--- a/resources/views/pages/admin/dashboard.blade.php[m
+[1m+++ b/resources/views/pages/admin/dashboard.blade.php[m
+[36m@@ -2,5 +2,5 @@[m
+ @section('page_title', 'My Dashboard')[m
+ [m
+ @section('content')[m
+[31m-    <h2>WELCOME {{ Auth::user()->name }}. This is your DASHBOARD</h2>[m
+[31m-    @endsection[m
+\ No newline at end of file[m
+[32m+[m[32m<h2>WELCOME {{ Auth::user()->name }}. This is your DASHBOARD</h2>[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/pages/support_team/dashboard.blade.php b/resources/views/pages/support_team/dashboard.blade.php[m
+[1mindex a7ad6aa..b2f5651 100644[m
+[1m--- a/resources/views/pages/support_team/dashboard.blade.php[m
+[1m+++ b/resources/views/pages/support_team/dashboard.blade.php[m
+[36m@@ -2,80 +2,273 @@[m
+ @section('page_title', 'My Dashboard')[m
+ @section('content')[m
+ [m
+[31m-    @if(Qs::userIsTeamSA())[m
+[31m-       <div class="row">[m
+[31m-           <div class="col-sm-6 col-xl-3">[m
+[31m-               <div class="card card-body bg-blue-400 has-bg-image">[m
+[31m-                   <div class="media">[m
+[31m-                       <div class="media-body">[m
+[31m-                           <h3 class="mb-0">{{ $users->where('user_type', 'student')->count() }}</h3>[m
+[31m-                           <span class="text-uppercase font-size-xs font-weight-bold">Total Students</span>[m
+[31m-                       </div>[m
+[31m-[m
+[31m-                       <div class="ml-3 align-self-center">[m
+[31m-                           <i class="icon-users4 icon-3x opacity-75"></i>[m
+[31m-                       </div>[m
+[31m-                   </div>[m
+[31m-               </div>[m
+[31m-           </div>[m
+[31m-[m
+[31m-           <div class="col-sm-6 col-xl-3">[m
+[31m-               <div class="card card-body bg-danger-400 has-bg-image">[m
+[31m-                   <div class="media">[m
+[31m-                       <div class="media-body">[m
+[31m-                           <h3 class="mb-0">{{ $users->where('user_type', 'teacher')->count() }}</h3>[m
+[31m-                           <span class="text-uppercase font-size-xs">Total Teachers</span>[m
+[31m-                       </div>[m
+[31m-[m
+[31m-                       <div class="ml-3 align-self-center">[m
+[31m-                           <i class="icon-users2 icon-3x opacity-75"></i>[m
+[31m-                       </div>[m
+[31m-                   </div>[m
+[31m-               </div>[m
+[31m-           </div>[m
+[31m-[m
+[31m-           <div class="col-sm-6 col-xl-3">[m
+[31m-               <div class="card card-body bg-success-400 has-bg-image">[m
+[31m-                   <div class="media">[m
+[31m-                       <div class="mr-3 align-self-center">[m
+[31m-                           <i class="icon-pointer icon-3x opacity-75"></i>[m
+[31m-                       </div>[m
+[31m-[m
+[31m-                       <div class="media-body text-right">[m
+[31m-                           <h3 class="mb-0">{{ $users->where('user_type', 'admin')->count() }}</h3>[m
+[31m-                           <span class="text-uppercase font-size-xs">Total Administrators</span>[m
+[31m-                       </div>[m
+[31m-                   </div>[m
+[31m-               </div>[m
+[31m-           </div>[m
+[31m-[m
+[31m-           <div class="col-sm-6 col-xl-3">[m
+[31m-               <div class="card card-body bg-indigo-400 has-bg-image">[m
+[31m-                   <div class="media">[m
+[31m-                       <div class="mr-3 align-self-center">[m
+[31m-                           <i class="icon-user icon-3x opacity-75"></i>[m
+[31m-                       </div>[m
+[31m-[m
+[31m-                       <div class="media-body text-right">[m
+[31m-                           <h3 class="mb-0">{{ $users->where('user_type', 'parent')->count() }}</h3>[m
+[31m-                           <span class="text-uppercase font-size-xs">Total Parents</span>[m
+[31m-                       </div>[m
+[31m-                   </div>[m
+[31m-               </div>[m
+[31m-           </div>[m
+[31m-       </div>[m
+[31m-       @endif[m
+[31m-[m
+[31m-    {{--Events Calendar Begins--}}[m
+[31m-    <div class="card">[m
+[31m-        <div class="card-header header-elements-inline">[m
+[31m-            <h5 class="card-title">School Events Calendar</h5>[m
+[31m-         {!! Qs::getPanelOptions() !!}[m
+[32m+[m[32m@if (Qs::userIsTeamSA())[m
+[32m+[m[32m<div class="row">[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-blue-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ $users->where('user_type', 'student')->count() }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs font-weight-bold">Total Students</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-users4 icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-danger-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ $users->where('user_type', 'teacher')->count() }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs">Total Teachers</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-users2 icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-success-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="mr-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-pointer icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="media-body text-right">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ $users->where('user_type', 'admin')->count() }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs">Total Administrators</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+         </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-indigo-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="mr-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-user icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+ [m
+[31m-        <div class="card-body">[m
+[31m-            <div class="fullcalendar-basic"></div>[m
+[32m+[m[32m                <div class="media-body text-right">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ $users->where('user_type', 'parent')->count() }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs">Total Parents</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+         </div>[m
+     </div>[m
+[31m-    {{--Events Calendar Ends--}}[m
+[31m-    @endsection[m
+[32m+[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-warning-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ number_format($total_fee, 2) }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs font-weight-bold">Total Payments</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-cash3 icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m    {{-- <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-blue-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ $students_count }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs font-weight-bold">Total Students</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-users4 icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div> --}}[m
+[32m+[m
+[32m+[m[32m    {{-- <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-success-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ number_format($total_fee) }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs font-weight-bold">Total Fee Demand</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-cash3 icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div> --}}[m
+[32m+[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-primary-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ number_format($current_month_paid) }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs font-weight-bold">Total Paid This Month</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-check icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m[32m    <div class="col-sm-6 col-xl-3">[m
+[32m+[m[32m        <div class="card card-body bg-danger-400 has-bg-image">[m
+[32m+[m[32m            <div class="media">[m
+[32m+[m[32m                <div class="media-body">[m
+[32m+[m[32m                    <h3 class="mb-0">{{ number_format($pending_amount) }}</h3>[m
+[32m+[m[32m                    <span class="text-uppercase font-size-xs font-weight-bold">Pending Amount This Month</span>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m                <div class="ml-3 align-self-center">[m
+[32m+[m[32m                    <i class="icon-cross2 icon-3x opacity-75"></i>[m
+[32m+[m[32m                </div>[m
+[32m+[m[32m            </div>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m</div>[m
+[32m+[m[32m@endif[m
+[32m+[m
+[32m+[m[32m<!-- CSS -->[m
+[32m+[m[32m<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">[m
+[32m+[m[32m<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">[m
+[32m+[m
+[32m+[m[32m<!-- JS -->[m
+[32m+[m[32m<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>[m
+[32m+[m[32m<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>[m
+[32m+[m[32m<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>[m
+[32m+[m
+[32m+[m
+[32m+[m
+[32m+[m[32m{{-- Students Table --}}[m
+[32m+[m[32m<div class="card shadow-sm border-0">[m
+[32m+[m[32m    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">[m
+[32m+[m[32m        <h5 class="mb-0 fw-semibold text-dark">[m
+[32m+[m[32m            <i class="icon-users4 text-primary me-2"></i> Students Fee Status[m
+[32m+[m[32m        </h5>[m
+[32m+[m[32m        <span class="badge bg-light text-muted">Last Updated: {{ now()->format('d M, Y') }}</span>[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m[32m    <div class="card-body">[m
+[32m+[m[32m        <div class="table-responsive">[m
+[32m+[m[32m            <table id="students-table" class="table table-hover table-bordered align-middle mb-0">[m
+[32m+[m[32m                <thead class="bg-light text-dark">[m
+[32m+[m[32m                    <tr>[m
+[32m+[m[32m                        <th>ID</th>[m
+[32m+[m[32m                        <th>Student Name</th>[m
+[32m+[m[32m                        <th>Fee Demand</th>[m
+[32m+[m[32m                        <th>Paid (This Month)</th>[m
+[32m+[m[32m                        <th>Pending</th>[m
+[32m+[m[32m                        <th>Month Payment Status</th>[m
+[32m+[m[32m                    </tr>[m
+[32m+[m[32m                </thead>[m
+[32m+[m[32m                <tbody>[m
+[32m+[m[32m                    @foreach ($students as $student)[m
+[32m+[m[32m                    <tr>[m
+[32m+[m[32m                        <td class="fw-semibold">{{ $student->id }}</td>[m
+[32m+[m[32m                        <td class="fw-medium">{{ $student->name }}</td>[m
+[32m+[m[32m                        <td>Rs. {{ number_format($student->fee_demand) }}</td>[m
+[32m+[m[32m                        <td class="text-success fw-semibold">[m
+[32m+[m[32m                            Rs. {{ number_format($student->monthly_paid) }}[m
+[32m+[m[32m                        </td>[m
+[32m+[m[32m                        <td>[m
+[32m+[m[32m                            @if($student->pending > 0)[m
+[32m+[m[32m                            <span class="badge bg-danger px-3 py-2">[m
+[32m+[m[32m                                Rs. {{ number_format($student->pending) }}[m
+[32m+[m[32m                            </span>[m
+[32m+[m[32m                            @else[m
+[32m+[m[32m                            <span class="badge bg-success px-3 py-2">[m
+[32m+[m[32m                                No Due[m
+[32m+[m[32m                            </span>[m
+[32m+[m[32m                            @endif[m
+[32m+[m[32m                        </td>[m
+[32m+[m[32m                        <td>[m
+[32m+[m[32m                            @foreach ($student->months_status as $monthNum => $status)[m
+[32m+[m[32m                            @php $monthName = \Carbon\Carbon::create()->month($monthNum)->format('M'); @endphp[m
+[32m+[m[32m                            @if($status === 'Paid')[m
+[32m+[m[32m                            <span class="badge bg-success mb-1">[m
+[32m+[m[32m                                <i class="bi bi-check-circle me-1"></i> {{ $monthName }}[m
+[32m+[m[32m                            </span>[m
+[32m+[m[32m                            @else[m
+[32m+[m[32m                            <span class="badge bg-danger mb-1">[m
+[32m+[m[32m                                <i class="bi bi-x-circle me-1"></i> {{ $monthName }}[m
+[32m+[m[32m                            </span>[m
+[32m+[m[32m                            @endif[m
+[32m+[m[32m                            @endforeach[m
+[32m+[m[32m                        </td>[m
+[32m+[m[32m                    </tr>[m
+[32m+[m[32m                    @endforeach[m
+[32m+[m[32m                </tbody>[m
+[32m+[m[32m            </table>[m
+[32m+[m[32m        </div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m
+[32m+[m
+[32m+[m[32m<style>[m
+[32m+[m[32m    #students-table th {[m
+[32m+[m[32m        text-transform: uppercase;[m
+[32m+[m[32m        font-size: 0.85rem;[m
+[32m+[m[32m        letter-spacing: .5px;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    #students-table tbody tr:hover {[m
+[32m+[m[32m        background-color: #f8f9fa;[m
+[32m+[m[32m        transition: 0.2s ease-in-out;[m
+[32m+[m[32m    }[m
+[32m+[m
+[32m+[m[32m    .badge {[m
+[32m+[m[32m        border-radius: 30px;[m
+[32m+[m[32m        font-weight: 600;[m
+[32m+[m[32m        font-size: 0.75rem;[m
+[32m+[m[32m    }[m
+[32m+[m[32m</style>[m
+[32m+[m
+[32m+[m[32m{{-- *Name Search Javascripht Function --}}[m
+[32m+[m[32m<script>[m
+[32m+[m[32m    document.addEventListener('DOMContentLoaded', function() {[m
+[32m+[m[32m        $('#students-table').DataTable({[m
+[32m+[m[32m            responsive: true,[m
+[32m+[m[32m            pageLength: 10,[m
+[32m+[m[32m            lengthChange: false,[m
+[32m+[m[32m            ordering: true,[m
+[32m+[m[32m            pagingType: 'simple_numbers',[m
+[32m+[m[32m            language: {[m
+[32m+[m[32m                search: "_INPUT_",[m
+[32m+[m[32m                searchPlaceholder: "Search by name or ID..."[m
+[32m+[m[32m            }[m
+[32m+[m[32m        });[m
+[32m+[m[32m    });[m
+[32m+[m[32m</script>[m
+[32m+[m
+[32m+[m
+[32m+[m[32m{{-- Events Calendar Begins --}}[m
+[32m+[m[32m<div class="card">[m
+[32m+[m[32m    <div class="card-header header-elements-inline">[m
+[32m+[m[32m        <h5 class="card-title">School Events Calendar</h5>[m
+[32m+[m[32m        {!! Qs::getPanelOptions() !!}[m
+[32m+[m[32m    </div>[m
+[32m+[m
+[32m+[m[32m    <div class="card-body">[m
+[32m+[m[32m        <div class="fullcalendar-basic"></div>[m
+[32m+[m[32m    </div>[m
+[32m+[m[32m</div>[m
+[32m+[m[32m{{-- Events Calendar Ends --}}[m
+[32m+[m[32m@endsection[m
+\ No newline at end of file[m
+[1mdiff --git a/resources/views/partials/inc_top.blade.php b/resources/views/partials/inc_top.blade.php[m
+[1mindex dcdf76a..20e394c 100644[m
+[1m--- a/resources/views/partials/inc_top.blade.php[m
+[1m+++ b/resources/views/partials/inc_top.blade.php[m
+[36m@@ -20,3 +20,4 @@[m
+     <script src="{{ asset('global_assets/js/main/jquery.min.js') }} "></script>[m
+     <script src="{{ asset('global_assets/js/main/bootstrap.bundle.min.js') }} "></script>[m
+     <script src="{{ asset('global_assets/js/plugins/loaders/blockui.min.js') }} "></script>[m
+[41m+    [m
