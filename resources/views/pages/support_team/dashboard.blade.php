@@ -146,12 +146,129 @@
 </div>
 @endif
 
-    {{--Events Calendar Begins--}}
-    <div class="card">
-        <div class="card-header header-elements-inline">
-            <h5 class="card-title">School Events Calendar</h5>
-         {!! Qs::getPanelOptions() !!}
+<!-- CSS -->
+<link rel="stylesheet" href="https://cdn.datatables.net/1.13.6/css/jquery.dataTables.min.css">
+<link rel="stylesheet" href="https://cdn.datatables.net/responsive/2.5.0/css/responsive.dataTables.min.css">
+
+<!-- JS -->
+<script src="https://code.jquery.com/jquery-3.7.1.min.js"></script>
+<script src="https://cdn.datatables.net/1.13.6/js/jquery.dataTables.min.js"></script>
+<script src="https://cdn.datatables.net/responsive/2.5.0/js/dataTables.responsive.min.js"></script>
+
+
+
+{{-- Students Table --}}
+<div class="card shadow-sm border-0">
+    <div class="card-header bg-white border-bottom d-flex justify-content-between align-items-center">
+        <h5 class="mb-0 fw-semibold text-dark">
+            <i class="icon-users4 text-primary me-2"></i> Students Fee Status
+        </h5>
+        <span class="badge bg-light text-muted">Last Updated: {{ now()->format('d M, Y') }}</span>
+    </div>
+
+    <div class="card-body">
+        <div class="table-responsive">
+            <table id="students-table" class="table table-hover table-bordered align-middle mb-0">
+                <thead class="bg-light text-dark">
+                    <tr>
+                        <th>ID</th>
+                        <th>Student Name</th>
+                        <th>Fee Demand</th>
+                        <th>Paid (This Month)</th>
+                        <th>Pending</th>
+                        <th>Month Payment Status</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @foreach ($students as $student)
+                    <tr>
+                        <td class="fw-semibold">{{ $student->id }}</td>
+                        <td class="fw-medium">{{ $student->name }}</td>
+                        <td>Rs. {{ number_format($student->fee_demand) }}</td>
+                        <td class="text-success fw-semibold">
+                            Rs. {{ number_format($student->monthly_paid) }}
+                        </td>
+                        <td>
+                            @if($student->pending > 0)
+                            <span class="badge bg-danger px-3 py-2">
+                                Rs. {{ number_format($student->pending) }}
+                            </span>
+                            @else
+                            <span class="badge bg-success px-3 py-2">
+                                No Due
+                            </span>
+                            @endif
+                        </td>
+                        <td>
+                            @foreach ($student->months_status as $monthNum => $status)
+                            @php $monthName = \Carbon\Carbon::create()->month($monthNum)->format('M'); @endphp
+                            @if($status === 'Paid')
+                            <span class="badge bg-success mb-1">
+                                <i class="bi bi-check-circle me-1"></i> {{ $monthName }}
+                            </span>
+                            @else
+                            <span class="badge bg-danger mb-1">
+                                <i class="bi bi-x-circle me-1"></i> {{ $monthName }}
+                            </span>
+                            @endif
+                            @endforeach
+                        </td>
+                    </tr>
+                    @endforeach
+                </tbody>
+            </table>
         </div>
+    </div>
+</div>
+
+
+<style>
+    #students-table th {
+        text-transform: uppercase;
+        font-size: 0.85rem;
+        letter-spacing: .5px;
+    }
+
+    #students-table tbody tr:hover {
+        background-color: #f8f9fa;
+        transition: 0.2s ease-in-out;
+    }
+
+    .badge {
+        border-radius: 30px;
+        font-weight: 600;
+        font-size: 0.75rem;
+    }
+</style>
+
+{{-- *Name Search Javascripht Function --}}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        $('#students-table').DataTable({
+            responsive: true,
+<<<<<<<<< Temporary merge branch 1
+            pageLength: 20,
+=========
+            pageLength: 10,
+>>>>>>>>> Temporary merge branch 2
+            lengthChange: false,
+            ordering: true,
+            pagingType: 'simple_numbers',
+            language: {
+                search: "_INPUT_",
+                searchPlaceholder: "Search by name or ID..."
+            }
+        });
+    });
+</script>
+
+
+{{-- Events Calendar Begins --}}
+<div class="card">
+    <div class="card-header header-elements-inline">
+        <h5 class="card-title">School Events Calendar</h5>
+        {!! Qs::getPanelOptions() !!}
+    </div>
 
     <div class="card-body">
         <div class="fullcalendar-basic"></div>

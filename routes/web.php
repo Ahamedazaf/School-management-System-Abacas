@@ -93,6 +93,13 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('select_class', 'PaymentController@select_class')->name('payments.select_class');
             Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('payments.reset_record');
             Route::post('pay_now/{id}', 'PaymentController@pay_now')->name('payments.pay_now');
+<<<<<<<<< Temporary merge branch 1
+             Route::get('summary', 'PaymentController@summary')->name('payments.summary');
+            
+            
+=========
+            Route::get('summary', 'PaymentController@summary')->name('payments.summary');
+>>>>>>>>> Temporary merge branch 2
         });
 
         /*************** Pins *****************/
