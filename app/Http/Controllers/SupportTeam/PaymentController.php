@@ -2,19 +2,21 @@
 
 namespace App\Http\Controllers\SupportTeam;
 
+use PDF;
+use Carbon\Carbon;
 use App\Helpers\Qs;
 use App\Helpers\Pay;
-use App\Http\Controllers\Controller;
-use App\Http\Requests\Payment\PaymentCreate;
-use App\Http\Requests\Payment\PaymentUpdate;
 use App\Models\Setting;
+use Illuminate\Http\Request;
 use App\Repositories\MyClassRepo;
 use App\Repositories\PaymentRepo;
 use App\Repositories\StudentRepo;
-use Illuminate\Database\Eloquent\ModelNotFoundException;
-use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
+use App\Http\Controllers\Controller;
 use Illuminate\Support\Facades\Storage;
-use PDF;
+use App\Http\Requests\Payment\PaymentCreate;
+use App\Http\Requests\Payment\PaymentUpdate;
+use Illuminate\Database\Eloquent\ModelNotFoundException;
 
 class PaymentController extends Controller
 {
@@ -42,7 +44,7 @@ class PaymentController extends Controller
     {
         $d['payments'] = $p = $this->pay->getPayment(['year' => $year])->get();
 
-        if(($p->count() < 1)){
+        if (($p->count() < 1)) {
             return Qs::goWithDanger('payments.index');
         }
 
@@ -52,7 +54,6 @@ class PaymentController extends Controller
         $d['year'] = $year;
 
         return view('pages.support_team.payments.index', $d);
-
     }
 
     public function select_year(Request $req)
@@ -63,12 +64,17 @@ class PaymentController extends Controller
     public function create()
     {
         $d['my_classes'] = $this->my_class->all();
+        // $d['students'] = $this->student->getRecord([])->get()->sortBy('user.name');
+
         return view('pages.support_team.payments.create', $d);
     }
+    
 
     public function invoice($st_id, $year = NULL)
     {
-        if(!$st_id) {return Qs::goWithDanger();}
+        if (!$st_id) {
+            return Qs::goWithDanger();
+        }
 
         $inv = $year ? $this->pay->getAllMyPR($st_id, $year) : $this->pay->getAllMyPR($st_id);
 
@@ -82,26 +88,9 @@ class PaymentController extends Controller
 
     public function receipts($pr_id)
     {
-        if(!$pr_id) {return Qs::goWithDanger();}
-
-        try {
-             $d['pr'] = $pr = $this->pay->getRecord(['id' => $pr_id])->with('receipt')->first();
-        } catch (ModelNotFoundException $ex) {
-            return back()->with('flash_danger', __('msg.rnf'));
+        if (!$pr_id) {
+            return Qs::goWithDanger();
         }
-        $d['receipts'] = $pr->receipt;
-        $d['payment'] = $pr->payment;
-        $d['sr'] = $this->student->findByUserId($pr->student_id)->first();
-        $d['s'] = Setting::all()->flatMap(function($s){
-            return [$s->type => $s->description];
-        });
-
-        return view('pages.support_team.payments.receipt', $d);
-    }
-
-    public function pdf_receipts($pr_id)
-    {
-        if(!$pr_id) {return Qs::goWithDanger();}
 
         try {
             $d['pr'] = $pr = $this->pay->getRecord(['id' => $pr_id])->with('receipt')->first();
@@ -110,22 +99,44 @@ class PaymentController extends Controller
         }
         $d['receipts'] = $pr->receipt;
         $d['payment'] = $pr->payment;
-        $d['sr'] = $sr =$this->student->findByUserId($pr->student_id)->first();
-        $d['s'] = Setting::all()->flatMap(function($s){
+        $d['sr'] = $this->student->findByUserId($pr->student_id)->first();
+        $d['s'] = Setting::all()->flatMap(function ($s) {
             return [$s->type => $s->description];
         });
 
-        $pdf_name = 'Receipt_'.$pr->ref_no;
+        return view('pages.support_team.payments.receipt', $d);
+    }
+
+    public function pdf_receipts($pr_id)
+    {
+        if (!$pr_id) {
+            return Qs::goWithDanger();
+        }
+
+        try {
+            $d['pr'] = $pr = $this->pay->getRecord(['id' => $pr_id])->with('receipt')->first();
+        } catch (ModelNotFoundException $ex) {
+            return back()->with('flash_danger', __('msg.rnf'));
+        }
+        $d['receipts'] = $pr->receipt;
+        $d['payment'] = $pr->payment;
+        $d['sr'] = $sr = $this->student->findByUserId($pr->student_id)->first();
+        $d['s'] = Setting::all()->flatMap(function ($s) {
+            return [$s->type => $s->description];
+        });
+
+        $pdf_name = 'Receipt_' . $pr->ref_no;
 
         return PDF::loadView('pages.support_team.payments.receipt', $d)->download($pdf_name);
 
         //return $this->downloadReceipt('pages.support_team.payments.receipt', $d, $pdf_name);
     }
 
-    protected function downloadReceipt($page, $data, $name = NULL){
+    protected function downloadReceipt($page, $data, $name = NULL)
+    {
         $path = 'receipts/file.html';
         $disk = Storage::disk('local');
-        $disk->put($path, view($page, $data) );
+        $disk->put($path, view($page, $data));
         $html = $disk->get($path);
         return PDF::loadHTML($html)->download($name);
     }
@@ -158,9 +169,9 @@ class PaymentController extends Controller
         $d['my_classes'] = $this->my_class->all();
         $d['selected'] = false;
 
-        if($class_id){
+        if ($class_id) {
             $d['students'] = $st = $this->student->getRecord(['my_class_id' => $class_id])->get()->sortBy('user.name');
-            if($st->count() < 1){
+            if ($st->count() < 1) {
                 return Qs::goWithDanger('payments.manage');
             }
             $d['selected'] = true;
@@ -183,15 +194,14 @@ class PaymentController extends Controller
         $payments = $pay2->count() ? $pay1->merge($pay2) : $pay1;
         $students = $this->student->getRecord($wh)->get();
 
-        if($payments->count() && $students->count()){
-            foreach($payments as $p){
-                foreach($students as $st){
+        if ($payments->count() && $students->count()) {
+            foreach ($payments as $p) {
+                foreach ($students as $st) {
                     $pr['student_id'] = $st->user_id;
                     $pr['payment_id'] = $p->id;
                     $pr['year'] = $this->year;
                     $rec = $this->pay->createRecord($pr);
                     $rec->ref_no ?: $rec->update(['ref_no' => mt_rand(100000, 99999999)]);
-
                 }
             }
         }
@@ -238,5 +248,47 @@ class PaymentController extends Controller
         $this->pay->deleteReceipts(['pr_id' => $id]);
 
         return back()->with('flash_success', __('msg.update_ok'));
+    }
+
+    public function summary(Request $request)
+    {
+        // Base query → only students
+        $studentsQuery = DB::table('users')
+            ->join('student_records', 'users.id', '=', 'student_records.user_id')
+            ->where('users.user_type', 'student');
+
+        if ($request->filled('class_id')) {
+            $studentsQuery->where('student_records.my_class_id', $request->class_id);
+        }
+
+        $students = $studentsQuery->select('users.*', 'student_records.my_class_id')->get();
+
+
+        // Map each student with fee details
+        $studentsWithPayments = $students->map(function ($student) {
+            $monthlyPaid = DB::table('payment_records')
+                ->where('student_id', $student->id)
+                ->whereMonth('created_at', now()->month)
+                ->whereYear('created_at', now()->year)
+                ->sum('amt_paid');
+
+            $student->monthly_paid = $monthlyPaid;
+            $student->fee_demand   = 10000; // fixed monthly fee
+            $student->pending      = $student->fee_demand - $monthlyPaid;
+
+            return $student;
+        });
+
+        // Totals (only for the currently selected class if filter applied)
+        $total_fee          = $studentsWithPayments->count() * 10000;
+        $current_month_paid = $studentsWithPayments->sum('monthly_paid');
+        $pending_amount     = $total_fee - $current_month_paid;
+
+        return view('pages.support_team.payments.summary', [
+            'total_fee'          => $total_fee,
+            'current_month_paid' => $current_month_paid,
+            'pending_amount'     => $pending_amount,
+            'students'           => $studentsWithPayments
+        ]);
     }
 }
