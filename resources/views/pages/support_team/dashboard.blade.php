@@ -246,7 +246,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         $('#students-table').DataTable({
             responsive: true,
-            pageLength: 20,
+            pageLength: 10,
             lengthChange: false,
             ordering: true,
             pagingType: 'simple_numbers',
