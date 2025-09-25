@@ -14,7 +14,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@dashboard')->name('home');
     Route::get('/home', 'HomeController@dashboard')->name('home');
     Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
-    
+
 
 
     Route::group(['prefix' => 'my_account'], function () {
@@ -32,7 +32,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('graduated', 'StudentRecordController@graduated')->name('students.graduated');
             Route::put('not_graduated/{id}', 'StudentRecordController@not_graduated')->name('st.not_graduated');
             Route::get('list/{class_id}', 'StudentRecordController@listByClass')->name('students.list')->middleware('teamSAT');
-            
+
             /* Promotions */
             Route::post('promote_selector', 'PromotionController@selector')->name('students.promote_selector');
             Route::get('promotion/manage', 'PromotionController@manage')->name('students.promotion_manage');
@@ -93,13 +93,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::post('select_class', 'PaymentController@select_class')->name('payments.select_class');
             Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('payments.reset_record');
             Route::post('pay_now/{id}', 'PaymentController@pay_now')->name('payments.pay_now');
-<<<<<<<<< Temporary merge branch 1
-             Route::get('summary', 'PaymentController@summary')->name('payments.summary');
-            
-            
-=========
             Route::get('summary', 'PaymentController@summary')->name('payments.summary');
->>>>>>>>> Temporary merge branch 2
         });
 
         /*************** Pins *****************/
