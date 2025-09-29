@@ -1,15 +1,10 @@
 @extends('layouts.master')
-@section('page_title', 'Admit Student')
+@section('page_title', 'Add Student')
 @section('content')
         <div class="card">
             <div class="card-header bg-white header-elements-inline">
-<<<<<<< HEAD
                 <h6 class="card-title">Please fill The form Below To Add A New Student</h6>
-
-=======
-                <h6 class="card-title">Please fill The form Below To Admit A New Student</h6>
  
->>>>>>> 456f9bfdf88372cd23e5d9130d4bdebdd6422fa2
                 {!! Qs::getPanelOptions() !!}
             </div>
  

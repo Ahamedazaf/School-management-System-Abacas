@@ -134,11 +134,11 @@
                     <a href="#" class="nav-link"><i class="icon-users"></i> <span> Students</span></a>
 
                     <ul class="nav nav-group-sub" data-submenu-title="Manage Students">
-                        {{-- Admit Student --}}
+                        {{-- Add Student --}}
                         @if (Qs::userIsTeamSA())
                             <li class="nav-item">
                                 <a href="{{ route('students.create') }}"
-                                    class="nav-link {{ Route::is('students.create') ? 'active' : '' }}">Admit
+                                    class="nav-link {{ Route::is('students.create') ? 'active' : '' }}">Add
                                     Student</a>
                             </li>
                         @endif
