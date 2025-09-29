@@ -72,7 +72,7 @@
                             </div>
                         </div>
  
-                        <div class="col-md-3">
+                        {{-- <div class="col-md-3">
                             <div class="form-group">
                                 <label for="nal_id">Nationality: <span class="text-danger">*</span></label>
                                 <select data-placeholder="Choose..." required name="nal_id" id="nal_id" class="select-search form-control">
@@ -113,7 +113,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
+                        </div> --}}
  
                         <div class="col-md-6">
                             <div class="form-group">
@@ -176,7 +176,7 @@
                     </div>
  
                     <div class="row">
-                        <div class="col-md-3">
+                        {{-- <div class="col-md-3">
                             <label for="dorm_id">Dormitory: </label>
                             <select data-placeholder="Choose..."  name="dorm_id" id="dorm_id" class="select-search form-control">
                                 <option value=""></option>
@@ -199,7 +199,7 @@
                                 <label>Sport House:</label>
                                 <input type="text" name="house" placeholder="Sport House" class="form-control" value="{{ old('house') }}">
                             </div>
-                        </div>
+                        </div> --}}
  
                         <div class="col-md-3">
                             <div class="form-group">
