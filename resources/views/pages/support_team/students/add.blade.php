@@ -207,7 +207,7 @@
                                 <input type="text" name="adm_no" placeholder="Admission Number" class="form-control" value="{{ old('adm_no') }}">
                             </div>
                         </div>
-                    </div>
+                    </div> 
                 </fieldset>
 
 <button type="submit" class="btn btn-primary" style="float: right; margin: 20px;" >Submit &nbsp;&nbsp;<i class="icon-paperplane"></i></button>
