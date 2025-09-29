@@ -35,7 +35,7 @@
                         </div>
                     </div>
 
-                    <div class="form-group row">
+                    {{-- <div class="form-group row">
                         <label for="student_id" class="col-lg-3 col-form-label font-weight-semibold">Student
                             Details</label>
                         <div class="col-lg-9">
@@ -49,7 +49,7 @@
                                 @endforeach
                             </select>
                         </div>
-                    </div>
+                    </div> --}}
 
                     <div class="form-group row">
                         <label for="method" class="col-lg-3 col-form-label font-weight-semibold">Payment Method</label>
@@ -63,7 +63,7 @@
 
                     <div class="form-group row">
                         <label for="amount" class="col-lg-3 col-form-label font-weight-semibold">Amount (<del
-                                style="text-decoration-style: double">N</del>) <span
+                                style="text-decoration-style: double">LKR</del>) <span
                                 class="text-danger">*</span></label>
                         <div class="col-lg-9">
                             <input class="form-control" value="{{ old('amount') }}" required name="amount" id="amount"
