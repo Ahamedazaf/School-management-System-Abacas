@@ -19,7 +19,7 @@
         </div>
     </div>
 
-    <div class="col-sm-6 col-xl-3">
+    {{-- <div class="col-sm-6 col-xl-3">
         <div class="card card-body bg-danger-400 has-bg-image">
             <div class="media">
                 <div class="media-body">
@@ -32,9 +32,9 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
-    <div class="col-sm-6 col-xl-3">
+    {{-- <div class="col-sm-6 col-xl-3">
         <div class="card card-body bg-success-400 has-bg-image">
             <div class="media">
                 <div class="mr-3 align-self-center">
@@ -47,7 +47,7 @@
                 </div>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     <div class="col-sm-6 col-xl-3">
         <div class="card card-body bg-indigo-400 has-bg-image">
@@ -246,11 +246,7 @@
     document.addEventListener('DOMContentLoaded', function() {
         $('#students-table').DataTable({
             responsive: true,
-<<<<<<<<< Temporary merge branch 1
-            pageLength: 20,
-=========
             pageLength: 10,
->>>>>>>>> Temporary merge branch 2
             lengthChange: false,
             ordering: true,
             pagingType: 'simple_numbers',

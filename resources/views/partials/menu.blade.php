@@ -21,25 +21,15 @@
             <div class="card-body">
                 <div class="media">
                     <div class="mr-3">
-<<<<<<<<< Temporary merge branch 1
-                        <a href="{{ route('my_account') }}"><img src="{{ Auth::user()->photo }}" width="38" height="38"
-                                class="rounded-circle" alt="photo"></a>
-=========
                         <a href="{{ route('my_account') }}"><img src="{{ Auth::user()->photo }}" width="38"
                                 height="38" class="rounded-circle" alt="photo"></a>
->>>>>>>>> Temporary merge branch 2
                     </div>
 
                     <div class="media-body">
                         <div class="media-title font-weight-semibold">{{ Auth::user()->name }}</div>
                         <div class="font-size-xs opacity-50">
-<<<<<<<<< Temporary merge branch 1
-                            <i class="icon-user font-size-sm"></i> &nbsp;{{ ucwords(str_replace('_', ' ',
-                            Auth::user()->user_type)) }}
-=========
                             <i class="icon-user font-size-sm"></i>
                             &nbsp;{{ ucwords(str_replace('_', ' ', Auth::user()->user_type)) }}
->>>>>>>>> Temporary merge branch 2
                         </div>
                     </div>
 
@@ -63,22 +53,15 @@
                     </a>
                 </li>
 
-<<<<<<<<< Temporary merge branch 1
-                {{--Academics--}}
-                @if(Qs::userIsAcademic())
-                <li
-                    class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
-                    <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Academics</span></a>
-=========
                 {{-- Academics --}}
-                @if (Qs::userIsAcademic())
+                {{-- @if (Qs::userIsAcademic())
                     <li
                         class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['tt.index', 'ttr.edit', 'ttr.show', 'ttr.manage']) ? 'nav-item-expanded nav-item-open' : '' }} ">
                         <a href="#" class="nav-link"><i class="icon-graduation2"></i> <span> Academics</span></a>
->>>>>>>>> Temporary merge branch 2
 
                     <ul class="nav nav-group-sub" data-submenu-title="Manage Academics">
 
+<<<<<<< HEAD
 <<<<<<<<< Temporary merge branch 1
                         {{--Timetables--}}
                             <li class="nav-item"><a href="{{ route('tt.index') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['tt.index']) ? 'active' : '' }}">Timetables</a></li>
@@ -99,12 +82,15 @@
                             class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.edit', 'payments.manage', 'payments.show', 'payments.invoice']) ? 'nav-item-expanded' : '' }}">
 =========
                             {{-- Timetables --}}
+=======
+                            Timetables
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                             <li class="nav-item"><a href="{{ route('tt.index') }}"
                                     class="nav-link {{ in_array(Route::currentRouteName(), ['tt.index']) ? 'active' : '' }}">Timetables</a>
                             </li>
                         </ul>
                     </li>
-                @endif
+                @endif --}}
 
                 {{-- Administrative --}}
                 @if (Qs::userIsAdministrative())
@@ -116,7 +102,6 @@
                         <!-- {{-- Payments --}}
                             @if (Qs::userIsTeamAccount())
 <li class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.create', 'payments.edit', 'payments.manage', 'payments.show', 'payments.invoice']) ? 'nav-item-expanded' : '' }}">
->>>>>>>>> Temporary merge branch 2
 
                             <a href="#"
                                 class="nav-link {{ in_array(Route::currentRouteName(), ['payments.index', 'payments.edit', 'payments.create', 'payments.manage', 'payments.show', 'payments.invoice']) ? 'active' : '' }}">Payments</a>
@@ -132,23 +117,15 @@
                                         class="nav-link {{ in_array(Route::currentRouteName(), ['payments.manage', 'payments.invoice', 'payments.receipts']) ? 'active' : '' }}">Student
                                         Payments</a></li>
 
-<<<<<<<<< Temporary merge branch 1
-                            </ul>
-
-                        </li>
-                        @endif
-                    </ul>
-                </li>
-=========
                                 </ul> -->
 
                         </li>
->>>>>>>>> Temporary merge branch 2
                 @endif
             </ul>
             </li>
             @endif
 
+<<<<<<< HEAD
 <<<<<<<<< Temporary merge branch 1
                 {{--Manage Students--}}
                 @if(Qs::userIsTeamSAT())
@@ -166,6 +143,8 @@
 
                         {{--Student Information--}}
 =========
+=======
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
             {{-- Payments --}}
             @if (Qs::userIsAdministrative())
                 <li
@@ -198,23 +177,23 @@
                     <a href="#" class="nav-link"><i class="icon-users"></i> <span> Students</span></a>
 
                     <ul class="nav nav-group-sub" data-submenu-title="Manage Students">
-                        {{-- Admit Student --}}
+                        {{-- Add Student --}}
                         @if (Qs::userIsTeamSA())
                             <li class="nav-item">
                                 <a href="{{ route('students.create') }}"
-                                    class="nav-link {{ Route::is('students.create') ? 'active' : '' }}">Admit
+                                    class="nav-link {{ Route::is('students.create') ? 'active' : '' }}">Add
                                     Student</a>
                             </li>
                         @endif
 
                         {{-- Student Information --}}
->>>>>>>>> Temporary merge branch 2
                         <li
                             class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'nav-item-expanded' : '' }}">
                             <a href="#"
                                 class="nav-link {{ in_array(Route::currentRouteName(), ['students.list', 'students.edit', 'students.show']) ? 'active' : '' }}">Student
                                 Information</a>
                             <ul class="nav nav-group-sub">
+<<<<<<< HEAD
 <<<<<<<<< Temporary merge branch 1
                                 @foreach(App\Models\MyClass::orderBy('name')->get() as $c)
                                 <li class="nav-item"><a href="{{ route('students.list', $c->id) }}" class="nav-link ">{{
@@ -235,17 +214,18 @@
                                         class="nav-link {{ in_array(Route::currentRouteName(), ['students.promotion_manage']) ? 'active' : '' }}">Manage
                                         Promotions</a></li>
 =========
+=======
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                                 @foreach (App\Models\MyClass::orderBy('name')->get() as $c)
                                     <li class="nav-item"><a href="{{ route('students.list', $c->id) }}"
                                             class="nav-link ">{{ $c->name }}</a></li>
                                 @endforeach
->>>>>>>>> Temporary merge branch 2
                             </ul>
                         </li>
 
                         @if (Qs::userIsTeamSA())
                             {{-- Student Promotion --}}
-                            <li
+                            {{-- <li
                                 class="nav-item nav-item-submenu {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'nav-item-expanded' : '' }}">
                                 <a href="#"
                                     class="nav-link {{ in_array(Route::currentRouteName(), ['students.promotion', 'students.promotion_manage']) ? 'active' : '' }}">Student
@@ -259,29 +239,16 @@
                                             Promotions</a></li>
                                 </ul>
 
-                        </li>
+                        </li> --}}
 
-<<<<<<<<< Temporary merge branch 1
-                        {{--Student Graduated--}}
-                        <li class="nav-item"><a href="{{ route('students.graduated') }}"
-                                class="nav-link {{ in_array(Route::currentRouteName(), ['students.graduated' ]) ? 'active' : '' }}">Students
-                                Graduated</a></li>
-=========
                             {{-- Student Graduated --}}
-                            <li class="nav-item"><a href="{{ route('students.graduated') }}"
+                            {{-- <li class="nav-item"><a href="{{ route('students.graduated') }}"
                                     class="nav-link {{ in_array(Route::currentRouteName(), ['students.graduated']) ? 'active' : '' }}">Students
-                                    Graduated</a></li>
->>>>>>>>> Temporary merge branch 2
+                                    Graduated</a></li> --}}
                         @endif
 
                     </ul>
                 </li>
-<<<<<<<<< Temporary merge branch 1
-                @endif
-
-                @if(Qs::userIsTeamSA())
-                {{--Manage Users--}}
-=========
             @endif
 
             {{-- Manage Fees Summary --}}
@@ -297,12 +264,12 @@
             <!-- test -->
             @if (Qs::userIsTeamSA())
                 {{-- Manage Users --}}
->>>>>>>>> Temporary merge branch 2
                 <li class="nav-item">
                     <a href="{{ route('users.index') }}"
                         class="nav-link {{ in_array(Route::currentRouteName(), ['users.index', 'users.show', 'users.edit']) ? 'active' : '' }}"><i
                             class="icon-users4"></i> <span> Users</span></a>
                 </li>
+<<<<<<< HEAD
 <<<<<<<<< Temporary merge branch 1
 
                     {{--Manage Classes--}}
@@ -372,6 +339,8 @@
 
                         @endif
 =========
+=======
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
 
                 <!-- {{-- Manage Classes --}}
                     <li class="nav-item">
@@ -436,7 +405,6 @@
                                 <a href="{{ route('marks.bulk') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['marks.bulk', 'marks.show']) ? 'active' : '' }}">Marksheet</a>
                             </li>
 @endif
->>>>>>>>> Temporary merge branch 2
 
                     </ul>
                 </li>
@@ -447,25 +415,23 @@
 
             @include('pages.' . Qs::getUserType() . '.menu')
 
+<<<<<<< HEAD
 <<<<<<<<< Temporary merge branch 1
                 {{--Manage Account--}}
                 <li class="nav-item">
                     <a href="{{ route('my_account') }}" class="nav-link {{ in_array(Route::currentRouteName(), ['my_account']) ? 'active' : '' }}"><i class="icon-user"></i> <span>My Account</span></a>
                 </li>
 =========
+=======
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
             {{-- Manage Account --}}
             <li class="nav-item">
                 <a href="{{ route('my_account') }}"
                     class="nav-link {{ in_array(Route::currentRouteName(), ['my_account']) ? 'active' : '' }}"><i
                         class="icon-user"></i> <span>My Account</span></a>
             </li>
->>>>>>>>> Temporary merge branch 2
 
             </ul>
         </div>
     </div>
-<<<<<<<<< Temporary merge branch 1
 </div>
-=========
-</div>
->>>>>>>>> Temporary merge branch 2
