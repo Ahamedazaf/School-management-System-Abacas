@@ -1,5 +1,8 @@
 <?php
 
+use App\Http\Controllers\FineController;
+use App\Http\Controllers\SupportTeam\PaymentController;
+
 Auth::routes();
 
 //Route::get('/test', 'TestController@index')->name('test');
@@ -12,7 +15,7 @@ Route::group(['middleware' => 'auth'], function () {
     Route::get('/', 'HomeController@dashboard')->name('home');
     // Route::get('/home', 'HomeController@dashboard')->name('home');
     Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
-    
+
 
 
 
@@ -21,7 +24,7 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/', 'MyAccountController@update_profile')->name('my_account.update');
         Route::put('/change_password', 'MyAccountController@change_pass')->name('my_account.change_pass');
     });
-    
+
 
     /*************** Support Team *****************/
     Route::group(['namespace' => 'SupportTeam',], function () {
@@ -32,7 +35,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('graduated', 'StudentRecordController@graduated')->name('students.graduated');
             Route::put('not_graduated/{id}', 'StudentRecordController@not_graduated')->name('st.not_graduated');
             Route::get('list/{class_id}', 'StudentRecordController@listByClass')->name('students.list')->middleware('teamSAT');
-            
+
             /* Promotions */
             Route::post('promote_selector', 'PromotionController@selector')->name('students.promote_selector');
             Route::get('promotion/manage', 'PromotionController@manage')->name('students.promotion_manage');
@@ -83,18 +86,26 @@ Route::group(['middleware' => 'auth'], function () {
         });
 
         /*************** Payments *****************/
-        Route::group(['prefix' => 'payments'], function () {
+        Route::group(['prefix' => 'payments', 'as' => 'payments.'], function () {
 
-            Route::get('manage/{class_id?}', 'PaymentController@manage')->name('payments.manage');
-            Route::get('invoice/{id}/{year?}', 'PaymentController@invoice')->name('payments.invoice');
-            Route::get('receipts/{id}', 'PaymentController@receipts')->name('payments.receipts');
-            Route::get('pdf_receipts/{id}', 'PaymentController@pdf_receipts')->name('payments.pdf_receipts');
-            Route::post('select_year', 'PaymentController@select_year')->name('payments.select_year');
-            Route::post('select_class', 'PaymentController@select_class')->name('payments.select_class');
-            Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('payments.reset_record');
-            Route::post('pay_now/{id}', 'PaymentController@pay_now')->name('payments.pay_now');
-             Route::get('summary', 'PaymentController@summary')->name('payments.summary');
+            Route::get('manage/{class_id?}', 'PaymentController@manage')->name('manage');
+            Route::get('invoice/{id}/{year?}', 'PaymentController@invoice')->name('invoice');
+
+            Route::get('receipts/{id}', [PaymentController::class, 'receipts'])->name('receipts');
+            Route::get('pdf_receipts/{id}', [PaymentController::class, 'pdf_receipts'])->name('pdf_receipts');
+
+            Route::post('select_year', 'PaymentController@select_year')->name('select_year');
+            Route::post('select_class', 'PaymentController@select_class')->name('select_class');
+
+            Route::delete('reset_record/{id}', 'PaymentController@reset_record')->name('reset_record');
+
+            Route::post('pay_now/{id}', [PaymentController::class, 'pay_now'])->name('pay_now');
+            Route::get('fetch-students', [PaymentController::class, 'fetchStudents'])->name('fetch_students');
+
+            Route::get('summary', 'PaymentController@summary')->name('summary');
         });
+        
+
 
         /*************** Pins *****************/
         Route::group(['prefix' => 'pins'], function () {
@@ -168,3 +179,11 @@ Route::group(['namespace' => 'MyParent', 'middleware' => 'my_parent',], function
 
     Route::get('/my_children', 'MyController@children')->name('my_children');
 });
+
+/************************ Fines ****************************/
+
+Route::get('/fines', [FineController::class, 'index'])->name('fines.index');
+Route::post('/fines', [FineController::class, 'store'])->name('fines.store');
+Route::delete('/fines/{fine}', [FineController::class, 'destroy'])->name('fines.destroy');
+
+
