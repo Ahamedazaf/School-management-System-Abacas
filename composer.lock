@@ -5241,6 +5241,18 @@
         },
         {
             "name": "symfony/string",
+<<<<<<< HEAD
+            "version": "v6.4.26",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/string.git",
+                "reference": "5621f039a71a11c87c106c1c598bdcd04a19aeea"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/string/zipball/5621f039a71a11c87c106c1c598bdcd04a19aeea",
+                "reference": "5621f039a71a11c87c106c1c598bdcd04a19aeea",
+=======
             "version": "v6.4.25",
             "source": {
                 "type": "git",
@@ -5251,6 +5263,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/string/zipball/7cdec7edfaf2cdd9c18901e35bcf9653d6209ff1",
                 "reference": "7cdec7edfaf2cdd9c18901e35bcf9653d6209ff1",
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                 "shasum": ""
             },
             "require": {
@@ -5264,7 +5277,10 @@
                 "symfony/translation-contracts": "<2.5"
             },
             "require-dev": {
+<<<<<<< HEAD
+=======
                 "symfony/error-handler": "^5.4|^6.0|^7.0",
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                 "symfony/http-client": "^5.4|^6.0|^7.0",
                 "symfony/intl": "^6.2|^7.0",
                 "symfony/translation-contracts": "^2.5|^3.0",
@@ -5307,7 +5323,11 @@
                 "utf8"
             ],
             "support": {
+<<<<<<< HEAD
+                "source": "https://github.com/symfony/string/tree/v6.4.26"
+=======
                 "source": "https://github.com/symfony/string/tree/v6.4.25"
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
             },
             "funding": [
                 {
@@ -5327,6 +5347,22 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
+            "time": "2025-09-11T14:32:46+00:00"
+        },
+        {
+            "name": "symfony/translation",
+            "version": "v6.4.26",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/symfony/translation.git",
+                "reference": "c8559fe25c7ee7aa9d28f228903a46db008156a4"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/symfony/translation/zipball/c8559fe25c7ee7aa9d28f228903a46db008156a4",
+                "reference": "c8559fe25c7ee7aa9d28f228903a46db008156a4",
+=======
             "time": "2025-08-22T12:33:20+00:00"
         },
         {
@@ -5341,6 +5377,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/symfony/translation/zipball/300b72643e89de0734d99a9e3f8494a3ef6936e1",
                 "reference": "300b72643e89de0734d99a9e3f8494a3ef6936e1",
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                 "shasum": ""
             },
             "require": {
@@ -5406,7 +5443,11 @@
             "description": "Provides tools to internationalize your application",
             "homepage": "https://symfony.com",
             "support": {
+<<<<<<< HEAD
+                "source": "https://github.com/symfony/translation/tree/v6.4.26"
+=======
                 "source": "https://github.com/symfony/translation/tree/v6.4.24"
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
             },
             "funding": [
                 {
@@ -5426,7 +5467,11 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
+            "time": "2025-09-05T18:17:25+00:00"
+=======
             "time": "2025-07-30T17:30:48+00:00"
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
         },
         {
             "name": "symfony/translation-contracts",
@@ -7630,6 +7675,18 @@
         },
         {
             "name": "phpunit/phpunit",
+<<<<<<< HEAD
+            "version": "9.6.29",
+            "source": {
+                "type": "git",
+                "url": "https://github.com/sebastianbergmann/phpunit.git",
+                "reference": "9ecfec57835a5581bc888ea7e13b51eb55ab9dd3"
+            },
+            "dist": {
+                "type": "zip",
+                "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/9ecfec57835a5581bc888ea7e13b51eb55ab9dd3",
+                "reference": "9ecfec57835a5581bc888ea7e13b51eb55ab9dd3",
+=======
             "version": "9.6.28",
             "source": {
                 "type": "git",
@@ -7640,6 +7697,7 @@
                 "type": "zip",
                 "url": "https://api.github.com/repos/sebastianbergmann/phpunit/zipball/a8017241a554a259997a5285eee5d10c69ff7187",
                 "reference": "a8017241a554a259997a5285eee5d10c69ff7187",
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                 "shasum": ""
             },
             "require": {
@@ -7664,7 +7722,11 @@
                 "sebastian/comparator": "^4.0.9",
                 "sebastian/diff": "^4.0.6",
                 "sebastian/environment": "^5.1.5",
+<<<<<<< HEAD
+                "sebastian/exporter": "^4.0.8",
+=======
                 "sebastian/exporter": "^4.0.7",
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
                 "sebastian/global-state": "^5.0.8",
                 "sebastian/object-enumerator": "^4.0.4",
                 "sebastian/resource-operations": "^3.0.4",
@@ -7713,7 +7775,11 @@
             "support": {
                 "issues": "https://github.com/sebastianbergmann/phpunit/issues",
                 "security": "https://github.com/sebastianbergmann/phpunit/security/policy",
+<<<<<<< HEAD
+                "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.29"
+=======
                 "source": "https://github.com/sebastianbergmann/phpunit/tree/9.6.28"
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
             },
             "funding": [
                 {
@@ -7737,7 +7803,11 @@
                     "type": "tidelift"
                 }
             ],
+<<<<<<< HEAD
+            "time": "2025-09-24T06:29:11+00:00"
+=======
             "time": "2025-09-23T06:20:12+00:00"
+>>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
         },
         {
             "name": "psr/cache",
