@@ -3,22 +3,25 @@
 namespace App\Http\Controllers\SupportTeam;
 
 use PDF;
+use Throwable;
 use App\Helpers\Qs;
 use App\Helpers\Pay;
+use App\Models\Fine;
 use App\Models\Setting;
 use Illuminate\Http\Request;
 use App\Models\PaymentRecord;
 use App\Repositories\MyClassRepo;
 use App\Repositories\PaymentRepo;
 use App\Repositories\StudentRepo;
+use Faker\Provider\fr_BE\Payment;
 use Illuminate\Support\Facades\DB;
 use App\Http\Controllers\Controller;
+
 use Illuminate\Support\Facades\Storage;
 use App\Http\Requests\Payment\PaymentCreate;
 use App\Http\Requests\Payment\PaymentUpdate;
+use App\Models\Payment as ModelsPayment;
 use Illuminate\Validation\ValidationException;
-use Throwable;
-use App\Models\Fine;
 
 class PaymentController extends Controller
 {
@@ -82,19 +85,24 @@ public function invoice($st_id, $year = null)
         return Qs::goWithDanger();
     }
 
-    $inv            = $year ? $this->pay->getAllMyPR($st_id, $year) : $this->pay->getAllMyPR($st_id);
+    $inv = $year 
+        ? $this->pay->getAllMyPR($st_id, $year) 
+        : $this->pay->getAllMyPR($st_id);
+
     $d['sr']        = $this->student->findByUserId($st_id)->first();
     $pr             = $inv->get();
     $d['uncleared'] = $pr->where('paid', 0);
     $d['cleared']   = $pr->where('paid', 1);
 
- 
     $userId = $d['sr']->user_id; 
-
     $d['fines'] = Fine::where('user_id', $userId)->latest()->get();
+
+    // ✅ Instead of querying by student_id, just get the first payment record
+    $d['additional_payment'] = $pr->first();
 
     return view('pages.support_team.payments.invoice', $d);
 }
+
 
 
     /* -------------------- Receipts -------------------- */
@@ -110,7 +118,7 @@ public function invoice($st_id, $year = null)
     $d['receipts'] = $pr->receipt;
     $d['payment']  = $pr->payment;
     $d['sr']       = $this->student->findByUserId($pr->student_id)->first();
-
+// return $d['payment'];
     $d['s'] = Setting::all()->flatMap(function ($s) {
         return [$s->type => $s->description ?? ''];
     });
@@ -151,11 +159,28 @@ public function invoice($st_id, $year = null)
             if (!is_numeric($id)) {
                 $id = Qs::decodeHash($id);
             }
+         $payment = ModelsPayment::where('id', $id)->first();
+
+if ($payment) {
+    $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
+    $payment->save();
+
+ return response()->json([
+                'ok'  => true,
+                'msg' => 'Record Updated Successfully',
+               
+            ], 200);} else {
+    return response()->json(['message' => 'Payment not found'], 404);
+}
+
 
             $validated = $req->validate([
                 'months'   => ['required', 'array', 'min:1'],
                 'months.*' => ['string']
             ]);
+
+    
+
 
             $pr = $this->pay->findRecord($id);
             if (!$pr) {
@@ -316,18 +341,48 @@ public function invoice($st_id, $year = null)
         return Qs::jsonStoreOk();
     }
 
-    public function edit($id)
-    {
-        $d['payment'] = $pay = $this->pay->find($id);
-        return is_null($pay) ? Qs::goWithDanger('payments.index') : view('pages.support_team.payments.edit', $d);
-    }
+   public function edit($id)
+{
+    $d['payment'] = $pay = $this->pay->find($id);
+    $d['my_classes'] = $this->my_class->all(); // 👈 add this line
+ 
+    return is_null($pay)
+        ? Qs::goWithDanger('payments.index')
+        : view('pages.support_team.payments.edit', $d);
+}
 
-    public function update(PaymentUpdate $req, $id)
-    {
-        $data = $req->all();
-        $this->pay->update($id, $data);
-        return Qs::jsonUpdateOk();
+  public function update(PaymentUpdate $req, $id)
+{
+    $data = $req->all();
+ 
+    // Always set additional_items JSON (even if empty)
+    $data['additional_items'] = $req->filled('additional_items')
+        ? $req->additional_items
+        : json_encode([]);
+ 
+    // Decode additional items
+    $additional = json_decode($data['additional_items'], true);
+ 
+    // Calculate additional amount total
+    $additionalAmount = 0;
+    if (is_array($additional)) {
+        foreach ($additional as $item) {
+            $additionalAmount += isset($item['amount']) ? floatval($item['amount']) : 0;
+        }
     }
+ 
+    // Store additional amount
+    $data['additional_amount'] = $additionalAmount;
+ 
+    // Calculate total amount (base + additional)
+    $data['total_amount'] = floatval($req->amount) + $additionalAmount;
+ 
+    // Update DB record
+    $this->pay->update($id, $data);
+ 
+    return redirect()->back()->with('success', 'Payment updated successfully!');
+ 
+}
 
     public function destroy($id)
     {
@@ -415,6 +470,33 @@ public function invoice($st_id, $year = null)
             ], 500);
         }
     }
+public function payAdditional($id, Request $request)
+{
+    $paymentId = Qs::decodeHash($id);
 
-    
+    $request->validate([
+        'additional_amount' => 'required|numeric|min:0.01',
+    ]);
+
+    // ✅ Fetch payment from payments table
+    $payment = DB::table('payments')->where('id', $paymentId)->first();
+
+    if (!$payment) {
+        return back()->with('error', 'Payment record not found.');
+    }
+
+    $enteredAmount = $request->input('additional_amount');
+
+    if ($enteredAmount > $payment->additional_amount) {
+        return back()->with('error', 'Entered amount cannot exceed the total additional payment.');
+    }
+
+    // ✅ Deduct entered amount
+    DB::table('payments')->where('id', $paymentId)->update([
+        'additional_amount' => $payment->additional_amount - $enteredAmount
+    ]);
+
+    return back()->with('success', 'Additional payment of ' . number_format($enteredAmount, 2) . ' LKR completed successfully!');
+}
+
 }

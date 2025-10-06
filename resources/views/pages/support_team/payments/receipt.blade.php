@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -13,7 +14,7 @@
     }
 
     .paid-stamp {
-      border: 4px solid #ef4444; 
+      border: 4px solid #ef4444;
       color: #ef4444;
       font-weight: 700;
       font-size: 1.5rem;
@@ -25,22 +26,26 @@
     }
 
     .receipt-container {
-      width: 210mm;        /* A5 landscape width */
-      height: 148mm;       /* A5 landscape height */
+      width: 210mm;
+      /* A5 landscape width */
+      height: 148mm;
+      /* A5 landscape height */
       margin: auto;
       border: 1px solid #e5e7eb;
-      box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+      box-shadow: 0 8px 16px rgba(0, 0, 0, 0.08);
       padding: 1rem 1.5rem;
       background-color: #fff;
       border-radius: 0.5rem;
       box-sizing: border-box;
-      overflow: hidden;    /* Prevent spilling */
+      overflow: hidden;
+      /* Prevent spilling */
       page-break-inside: avoid;
     }
 
     @page {
       size: A5 landscape;
-      margin: 0; /* Remove all margins */
+      margin: 0;
+      /* Remove all margins */
     }
 
     @media print {
@@ -48,6 +53,7 @@
         background: none !important;
         margin: 0;
       }
+
       .receipt-container {
         box-shadow: none;
         border-radius: 0;
@@ -55,6 +61,7 @@
     }
   </style>
 </head>
+
 <body>
 
   <div class="receipt-container">
@@ -62,9 +69,10 @@
     <header class="flex flex-col md:flex-row justify-between items-start mb-4 border-b pb-2 gap-4">
       <div class="flex items-center space-x-3">
         <div class="w-14 h-14 bg-gray-200 flex items-center justify-center rounded-full shadow-inner">
-          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none" viewBox="0 0 24 24"
+            stroke="currentColor">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-              d="M12 6.253v11.494m-5.247-8.982l10.494 4.494-10.494 4.494V6.253z"/>
+              d="M12 6.253v11.494m-5.247-8.982l10.494 4.494-10.494 4.494V6.253z" />
           </svg>
         </div>
         <div>
@@ -94,27 +102,33 @@
     <!-- Body -->
     <main>
       <!-- Received From (label left, name left-aligned) -->
-<div class="mb-2 flex items-center text-sm">
-  <span class="w-36 font-medium text-gray-700">Received From:</span>
-  <span class="font-semibold text-gray-800">{{ $sr->user->name }}</span>
-</div>
-<div class="border-b mb-2"></div>
+      <div class="mb-2 flex items-center text-sm">
+        <span class="w-36 font-medium text-gray-700">Received From:</span>
+        <span class="font-semibold text-gray-800">{{ $sr->user->name }}</span>
+      </div>
+      <div class="border-b mb-2"></div>
 
-<!-- Sum of Rs (label left, amount left-aligned) -->
-<div class="mb-2 flex items-center text-sm">
-  <span class="w-36 font-medium text-gray-700">Sum of Rs:</span>
-  <span class="font-semibold text-gray-800">{{ $payment->amount }}</span>
-</div>
-<div class="border-b mb-2"></div>
+      <?php
+      $sum_of_tot = ($pr->balance ?? 0) + ($payment->additional_amount ?? 0);
+      ?>
+      <!-- Sum of Rs (label left, amount left-aligned) -->
+      <div class="mb-2 flex items-center text-sm">
+        <span class="w-36 font-medium text-gray-700">Sum of Rs:</span>
+        <span class="font-semibold text-gray-800">
+          {{ $sum_of_tot }}
 
-<!-- Month of -->
-<div class="mb-2 flex items-center text-sm">
-  <span class="w-36 font-medium text-gray-700">Month of:</span>
-  <span class="font-semibold text-gray-800">
-    {{ $payment->month ?? '—' }}
-  </span>
-</div>
-<div class="border-b mb-2"></div>
+        </span>
+      </div>
+      <div class="border-b mb-2"></div>
+
+      <!-- Month of -->
+      <div class="mb-2 flex items-center text-sm">
+        <span class="w-36 font-medium text-gray-700">Month of:</span>
+        <span class="font-semibold text-gray-800">
+          {{ date('F') }}
+        </span>
+      </div>
+      <div class="border-b mb-2"></div>
 
 
 
@@ -122,8 +136,9 @@
       <div class="grid grid-cols-3 gap-6 text-center text-sm mb-6">
         <div>
           <span class="font-medium">Total Due :</span>
-          <div class="border-b border-black mt-1 font-semibold">
-            {{ $pr->paid ? 'CLEARED' : $pr->balance }}
+          <div class="border-b border-black mt-1 font-semibold text-left">
+            {{ $pr->balance }}+
+            {{ $payment->additional_amount ? $payment->additional_amount .' (Addition)' :''}}
           </div>
         </div>
         <div>
@@ -135,7 +150,8 @@
         <div>
           <span class="font-bold">Balance :</span>
           <div class="border-b border-black mt-1 font-semibold">
-            {{ $pr->paid ? 'CLEARED' : $pr->balance }}
+            {{-- {{ $pr->paid ? 'CLEARED' : $pr->balance }} --}}
+            {{$sum_of_tot - optional($receipts->last())->amt_paid }}
           </div>
         </div>
       </div>
@@ -163,4 +179,5 @@
   </div>
 
 </body>
+
 </html>

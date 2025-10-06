@@ -16,7 +16,10 @@ class CreatePaymentsTable extends Migration
         Schema::create('payments', function (Blueprint $table) {
             $table->increments('id');
             $table->string('title', 100);
+            $table->json('additional_items')->nullable();
+            $table->double('additional_amount', 8, 2)->default(0);
             $table->integer('amount');
+            $table->double('total_amount', 10, 2)->default(0);
             $table->string('ref_no', 100)->unique();
             $table->string('method', 100)->default('cash');
             $table->unsignedInteger('my_class_id')->nullable();

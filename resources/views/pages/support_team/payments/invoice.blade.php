@@ -27,6 +27,7 @@
                             <th>Pay Ref</th>
                             <th>Yearly Amount</th>
                             <th>Paid</th>
+                            <th>Pre payment</th>
                             <th>Months</th>
                             <th>Pay Now</th>
                             <th>Receipt No</th>
@@ -49,7 +50,14 @@
                             <td>{{ $uc->payment->ref_no }}</td>
                             <td class="font-weight-bold">{{ number_format($uc->payment->amount, 2) }}</td>
                             <td class="text-blue font-weight-bold">{{ number_format($uc->amt_paid ?: 0, 2) }}</td>
+                            <td class="pending-amount text-danger font-weight-bold">0.00</td>
                             <td style="min-width:220px;">
+                                <div class="mb-2">
+                                    <label class="text-muted small">Enter Total Amount (LKR)</label>
+                                    <input type="number" class="form-control total-amount-input"
+                                        id="total-input-{{ $hash }}" placeholder="e.g. 3000" min="0" step="0.01"
+                                        data-hash="{{ $hash }}">
+                                </div>
                                 <select id="months-select-{{ $hash }}" class="form-control months-select" multiple
                                     data-year-amount="{{ $uc->payment->amount }}" data-hash="{{ $hash }}">
                                     @foreach($monthsList as $m)
@@ -62,13 +70,13 @@
                                 </select>
                             </td>
                             <td style="min-width:210px;">
+                                {{-- ✅ Regular monthly payment form --}}
                                 <form id="form-{{ $hash }}" method="post" class="ajax-pay"
                                     action="{{ route('payments.pay_now', Qs::hash($uc->id)) }}">
                                     @csrf
                                     <div class="d-flex flex-column">
                                         <div class="mb-2">
-                                            <span class="badge badge-primary"
-                                                id="pay-amount-display-{{ $hash }}">0.00</span>
+                                            <span class="badge badge-primary pay-amount-display-{{ $hash }}">0.00</span>
                                             <small class="text-muted" id="pay-months-count-{{ $hash }}">(0
                                                 months)</small>
                                         </div>
@@ -78,7 +86,37 @@
                                         </button>
                                     </div>
                                 </form>
+
+                                {{-- ✅ Additional Payment Form (separate & independent) --}}
+                                @if(isset($uc->payment->additional_amount) && $uc->payment->additional_amount > 0)
+                                <div class="alert alert-info mt-2 p-2 text-center">
+                                    <strong>Additional Payment Due:</strong><br>
+                                    {{ number_format($uc->payment->additional_amount, 2) }} LKR
+                                </div>
+
+                                <form action="{{ route('payments.pay_now', Qs::hash($uc->payment->id)) }}" method="POST"
+                                    class="mt-2 ajax-pay">
+                                    @csrf
+
+                                    <div class="form-group">
+                                        <label for="custom_amount" class="font-weight-bold">Enter Amount to Pay
+                                            (LKR)</label>
+                                        <input type="number" step="0.01" min="0"
+                                            max="{{ $uc->payment->additional_amount }}" class="form-control"
+                                            name="additional_amount" id="custom_amount" placeholder="e.g. 500" required>
+                                        {{-- <input type="hidden" name="additional_amoun"> --}}
+                                        <small class="text-muted">You can pay any amount up to {{
+                                            number_format($uc->payment->additional_amount, 2) }} LKR.</small>
+                                    </div>
+
+                                    <button type="submit" class="btn btn-success w-100"
+                                        onclick="return confirm('Are you sure you want to pay this amount?')">
+                                        Pay Additional <i class="icon-paperplane ml-2"></i>
+                                    </button>
+                                </form>
+                                @endif
                             </td>
+
                             <td>{{ $uc->ref_no }}</td>
                             <td>{{ $uc->year }}</td>
                             <td class="text-center">
@@ -161,7 +199,6 @@
                 </table>
 
                 <hr class="my-4">
-
                 <h5 class="mb-3 font-weight-bold">Completed Fine Payments</h5>
                 <table class="table table-bordered table-hover table-sm" style="border: 1px solid #ddd;">
                     <thead class="thead-light" style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
@@ -181,11 +218,8 @@
                                 @if($details)
                                 <ul class="mb-0 pl-3" style="list-style-type: disc;">
                                     @foreach($details as $item)
-                                    <li>
-                                        {{ $item['item_name'] ?? '' }} -
-                                        <span class="font-weight-bold">{{ number_format($item['amount'] ?? 0, 2)
-                                            }}</span>
-                                    </li>
+                                    <li>{{ $item['item_name'] ?? '' }} - <span class="font-weight-bold">{{
+                                            number_format($item['amount'] ?? 0, 2) }}</span></li>
                                     @endforeach
                                 </ul>
                                 @else
@@ -204,19 +238,15 @@
                 </table>
             </div>
 
-            {{-- Fine --}}
             <div class="tab-pane fade" id="additional-fine">
                 <form id="fineForm" action="{{ route('fines.store') }}" method="POST">
                     @csrf
-
                     <input type="hidden" name="user_id" value="{{ $sr->user->id ?? '' }}">
-
                     <div class="row g-5">
                         <div class="col-lg-6 border-end" style="border-color: #e5e7eb;">
                             <h6 class="fw-bold text-secondary mb-3" style="font-size: 1.1rem;">
                                 <i class="icon-list2 mr-1"></i> Fine Breakdown
                             </h6>
-
                             <div id="fineItemsContainer" class="mb-4">
                                 <div class="row g-3 align-items-end fine-item mb-3 p-3 rounded-3"
                                     style="background: #f8f9fa; border: 1px solid #e5e7eb;">
@@ -225,14 +255,12 @@
                                         <input type="text" name="itemName[]" class="form-control rounded-3"
                                             placeholder="e.g., What Lost !" required>
                                     </div>
-
                                     <div class="col-md-4">
                                         <label class="form-label text-muted">Amount (LKR)</label>
                                         <input type="number" step="0.01" class="form-control rounded-3"
                                             name="itemAmount[]" placeholder="Amount" min="0" required
                                             oninput="calculateTotal()">
                                     </div>
-
                                     <div class="col-md-2 d-flex align-items-end">
                                         <button type="button" class="btn btn-outline-danger w-100 rounded-3"
                                             onclick="removeFineItem(this)">
@@ -241,21 +269,18 @@
                                     </div>
                                 </div>
                             </div>
-
                             <div class="d-grid mb-5">
                                 <button type="button" class="btn btn-outline-secondary py-2 fw-semibold rounded-3"
                                     onclick="addFineItem()">
                                     <i class="icon-plus-circle2"></i> Add Another Item
                                 </button>
                             </div>
-
                             <div class="p-4 rounded-3 border text-center"
                                 style="background: #fdfdfd; border-color: #e5e7eb;">
                                 <div class="fs-5 fw-bold mb-0">
                                     Total Fine: <span id="totalAmount" class="text-success">0.00</span>
                                 </div>
                             </div>
-
                             <div class="mt-4 text-end">
                                 <button type="submit" class="btn btn-success btn-lg px-5 rounded-3">
                                     <i class="icon-paperplane mr-2"></i> Generate Invoice
@@ -266,22 +291,10 @@
                 </form>
             </div>
 
-
-            <div id="toast" style="
-    position: fixed;
-    bottom: 30px;
-    right: 30px;
-    background: #28a745;
-    color: #fff;
-    padding: 14px 24px;
-    border-radius: 8px;
-    font-weight: 600;
-    box-shadow: 0 4px 10px rgba(0,0,0,0.15);
-    opacity: 0;
-    transform: translateY(20px);
-    transition: opacity 0.4s ease, transform 0.4s ease;
-    z-index: 9999;
-">Payment Successful</div>
+            <div id="toast"
+                style="position: fixed; bottom: 30px; right: 30px; background: #28a745; color: #fff; padding: 14px 24px; border-radius: 8px; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.15); opacity: 0; transform: translateY(20px); transition: opacity 0.4s ease, transform 0.4s ease; z-index: 9999;">
+                Payment Successful
+            </div>
 
             <script>
                 (function () {
@@ -300,44 +313,89 @@
         alert(message || 'Payment failed. Please try again.');
     }
 
-    function updateRow(hash) {
-        var select = document.getElementById('months-select-' + hash);
-        var yearlyAmount = parseFloat(select.getAttribute('data-year-amount')) || 0;
-        var monthly = yearlyAmount / 12;
-        var selected = Array.from(select.selectedOptions)
-            .filter(o => !o.disabled)
-            .map(o => o.value);
+    function calculateRow(hash) {
+        const select = document.getElementById('months-select-' + hash);
+        const totalInput = parseFloat(document.getElementById('total-input-' + hash)?.value) || 0;
+        const yearlyAmount = parseFloat(select.getAttribute('data-year-amount')) || 0;
+        const monthlyFee = yearlyAmount / 12;
 
-        var amount = monthly * selected.length;
+        let paidAmount = 0;
+        let remainder = 0;
 
-        document.getElementById('pay-amount-display-' + hash).textContent = amount.toFixed(2);
+        if (totalInput > 0) {
+            paidAmount = totalInput;
+            remainder = totalInput % monthlyFee;
+        } else {
+            const selectedMonths = Array.from(select.selectedOptions).filter(o => !o.disabled).length;
+            paidAmount = selectedMonths * monthlyFee;
+            remainder = paidAmount % monthlyFee;
+        }
+
+        document.querySelector('.pay-amount-display-' + hash).textContent = paidAmount.toFixed(2);
+        
         document.getElementById('pay-months-count-' + hash).textContent =
-            '(' + selected.length + ' month' + (selected.length !== 1 ? 's' : '') + ')';
+            '(' + Array.from(select.selectedOptions).filter(o => !o.disabled).length + ' month' +
+            (Array.from(select.selectedOptions).length !== 1 ? 's' : '') + ')';
 
-        var hiddenWrap = document.getElementById('hidden-months-' + hash);
+        const pendingCell = select.closest('tr').querySelector('.pending-amount');
+        if (pendingCell) pendingCell.textContent = remainder.toFixed(2);
+
+        const hiddenWrap = document.getElementById('hidden-months-' + hash);
         hiddenWrap.innerHTML = '';
-        selected.forEach(function (m) {
-            var input = document.createElement('input');
+        Array.from(select.selectedOptions).forEach(opt => {
+            const input = document.createElement('input');
             input.type = 'hidden';
             input.name = 'months[]';
-            input.value = m;
+            input.value = opt.value;
             hiddenWrap.appendChild(input);
         });
 
-        document.getElementById('pay-btn-' + hash).disabled = selected.length === 0;
+        document.getElementById('pay-btn-' + hash).disabled = paidAmount <= 0;
     }
 
-    document.querySelectorAll('.months-select').forEach(function (sel) {
-        var hash = sel.getAttribute('data-hash');
-        sel.addEventListener('change', function () { updateRow(hash); });
-        updateRow(hash);
+    document.querySelectorAll('.total-amount-input').forEach(input => {
+        input.addEventListener('input', function () {
+            const hash = this.getAttribute('data-hash');
+            const select = document.getElementById('months-select-' + hash);
+            const yearlyAmount = parseFloat(select.getAttribute('data-year-amount')) || 0;
+            const monthlyFee = yearlyAmount / 12;
+            const totalEntered = parseFloat(this.value) || 0;
+            const fullMonths = Math.floor(totalEntered / monthlyFee);
+
+            let selectedCount = 0;
+            Array.from(select.options).forEach(opt => { if (!opt.disabled) opt.selected = false; });
+            Array.from(select.options).forEach(opt => {
+                if (!opt.disabled && selectedCount < fullMonths) {
+                    opt.selected = true;
+                    selectedCount++;
+                }
+            });
+
+            calculateRow(hash);
+        });
     });
 
-    document.querySelectorAll('.ajax-pay').forEach(function (form) {
+    document.querySelectorAll('.months-select').forEach(sel => {
+        const hash = sel.getAttribute('data-hash');
+        sel.addEventListener('change', function () {
+            const totalInput = document.getElementById('total-input-' + hash);
+            if (totalInput) totalInput.value = '';
+            calculateRow(hash);
+        });
+        calculateRow(hash);
+    });
+
+    document.querySelectorAll('.ajax-pay').forEach(form => {
         form.addEventListener('submit', function (e) {
             e.preventDefault();
             const hash = form.id.replace('form-', '');
-            updateRow(hash);
+            calculateRow(hash);
+
+            const totalPaid = parseFloat(document.querySelector('.pay-amount-display-' + hash).textContent) || 0;
+            const select = document.getElementById('months-select-' + hash);
+            const yearlyAmount = parseFloat(select.getAttribute('data-year-amount')) || 0;
+            const monthlyFee = yearlyAmount / 12;
+            const remainder = totalPaid % monthlyFee;
 
             fetch(form.action, {
                 method: 'POST',
@@ -348,18 +406,15 @@
                 },
                 credentials: 'same-origin'
             })
-                .then(async (res) => {
+                .then(async res => {
                     let data = {};
-                    try { data = await res.json(); } catch (_) { }
+                    try { data = await res.json(); } catch (_) {}
 
                     if (!res.ok) {
-                        if (res.status === 419) return showError('Session expired (419). Please refresh and try again.');
-                        if (res.status === 401 || res.status === 403) return showError('Not authorized. Please sign in again.');
-                        if (res.status === 422) {
-                            const msg = (data && data.message) || 'Validation failed. Select at least one month.';
-                            return showError(msg);
-                        }
-                        return showError((data && (data.msg || data.message)) || 'Server error. Please try again.');
+                        if (res.status === 419) return showError('Session expired. Refresh and try again.');
+                        if (res.status === 401 || res.status === 403) return showError('Not authorized.');
+                        if (res.status === 422) return showError(data.message || 'Validation failed.');
+                        return showError(data.message || 'Server error.');
                     }
 
                     if (data.ok) {
@@ -368,11 +423,12 @@
                         const paidCell = form.closest('tr').querySelector('td:nth-child(5)');
                         if (paidCell) {
                             const currentPaid = parseFloat(paidCell.textContent.replace(/,/g, '')) || 0;
-                            const newPayment = parseFloat(document.getElementById('pay-amount-display-' + hash).textContent);
-                            paidCell.textContent = (currentPaid + newPayment).toFixed(2);
+                            paidCell.textContent = (currentPaid + totalPaid).toFixed(2);
                         }
 
-                        const select = document.getElementById('months-select-' + hash);
+                        const pendingCell = form.closest('tr').querySelector('.pending-amount');
+                        if (pendingCell) pendingCell.textContent = remainder.toFixed(2);
+
                         const selectedMonths = Array.from(select.selectedOptions).map(o => o.value);
                         Array.from(select.options).forEach(opt => {
                             if (selectedMonths.includes(opt.value)) {
@@ -383,8 +439,9 @@
                             }
                         });
 
+                        document.getElementById('total-input-' + hash).value = '';
                         document.getElementById('pay-btn-' + hash).disabled = true;
-                        document.getElementById('pay-amount-display-' + hash).textContent = '0.00';
+                        document.querySelector('.pay-amount-display-' + hash).textContent = '0.00';
                         document.getElementById('pay-months-count-' + hash).textContent = '(0 months)';
                     }
                 })
@@ -393,106 +450,5 @@
     });
 })();
             </script>
-
-            <script>
-                document.addEventListener("DOMContentLoaded", function () {
-    const token = document.querySelector('meta[name="csrf-token"]').getAttribute('content');
-
-    window.calculateTotal = function () {
-        let total = 0;
-        document.querySelectorAll('input[name="itemAmount[]"]').forEach(input => {
-            total += parseFloat(input.value) || 0;
-        });
-        document.getElementById('totalAmount').textContent = total.toFixed(2);
-    };
-
-    window.addFineItem = function () {
-        const container = document.getElementById('fineItemsContainer');
-        const row = document.createElement('div');
-        row.className = "row g-3 align-items-end fine-item mb-3 p-3 rounded-3";
-        row.style.background = "#f8f9fa";
-        row.style.border = "1px solid #e5e7eb";
-        row.innerHTML = `
-            <div class="col-md-6">
-                <label class="form-label text-muted">Item Name</label>
-                <input type="text" class="form-control rounded-3" name="itemName[]" placeholder="e.g., What Lost !" required>
-            </div>
-            <div class="col-md-4">
-                <label class="form-label text-muted">Amount (LKR)</label>
-                <input type="number" step="0.01" class="form-control rounded-3" name="itemAmount[]" placeholder="(LKR) 0.00" min="0" required oninput="calculateTotal()">
-            </div>
-            <div class="col-md-2">
-                <button type="button" class="btn btn-outline-danger w-100 mt-4 rounded-3" onclick="removeFineItem(this)">
-                    <i class="icon-trash"></i>
-                </button>
-            </div>
-        `;
-        container.appendChild(row);
-    };
-
-    window.removeFineItem = function (button) {
-        const rows = document.querySelectorAll('.fine-item');
-        if (rows.length > 1) {
-            button.closest('.fine-item').remove();
-            calculateTotal();
-        } else {
-            alert("At least one breakdown item is required.");
-        }
-    };
-
-    document.getElementById('fineForm').addEventListener('submit', async function (e) {
-        e.preventDefault();
-        const form = this;
-        const total = document.getElementById('totalAmount').textContent;
-        const formData = new FormData(form);
-
-        try {
-            const response = await fetch(form.action, {
-                method: 'POST',
-                body: formData,
-                headers: {
-                    'X-Requested-With': 'XMLHttpRequest',
-                    'Accept': 'application/json',
-                    'X-CSRF-TOKEN': token
-                }
-            });
-
-            const data = await response.json();
-            if (response.ok && data.success) {
-                showFineToast(` ${data.message} Total Fine: ${total}`);
-                form.reset();
-                document.getElementById('fineItemsContainer').innerHTML = '';
-                addFineItem();
-                calculateTotal();
-            } else {
-                alert('Failed to save invoice. ' + (data.message || 'Unknown error'));
-            }
-        } catch (error) {
-            console.error(error);
-            alert('Network error. Please try again.');
-        }
-    });
-
-    function showFineToast(message) {
-        let toast = document.getElementById('toast');
-        if (!toast) {
-            toast = document.createElement('div');
-            toast.id = 'toast';
-            document.body.appendChild(toast);
-        }
-        toast.textContent = message;
-        toast.style.opacity = '1';
-        toast.style.transform = 'translateY(0)';
-        setTimeout(() => {
-            toast.style.opacity = '0';
-            toast.style.transform = 'translateY(20px)';
-        }, 3000);
-    }
-
-    calculateTotal();
-});
-            </script>
-
-
 
             @endsection

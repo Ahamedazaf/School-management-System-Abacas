@@ -186,4 +186,9 @@ Route::get('/fines', [FineController::class, 'index'])->name('fines.index');
 Route::post('/fines', [FineController::class, 'store'])->name('fines.store');
 Route::delete('/fines/{fine}', [FineController::class, 'destroy'])->name('fines.destroy');
 
+// Route::post('/payments/{id}/pay-additional', [PaymentController::class, 'payAdditional'])
+//     ->name('payments.pay_additional');
+
+Route::post('/payments/{id}/pay-additional', [PaymentController::class, 'payAdditional'])->name('payments.pay_additional');
+
 
