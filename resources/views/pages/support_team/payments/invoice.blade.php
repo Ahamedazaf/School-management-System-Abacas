@@ -95,7 +95,8 @@
                                                 action="{{ route('payments.reset_record', $uc->id) }}" class="hidden">
                                                 @csrf @method('delete')
                                             </form>
-                                            <a target="_blank" href="{{ route('payments.receipts', $uc->id) }}"
+                                            <a target="_blank"
+                                                href="{{ route('payments.receipts', Qs::hash($uc->id)) }}"
                                                 class="dropdown-item">
                                                 <i class="icon-printer"></i> Print Receipt
                                             </a>
@@ -110,6 +111,7 @@
             </div>
 
             <div class="tab-pane fade" id="all-cl">
+                <h5 class="mb-3 font-weight-bold">Completed Regular Payments</h5>
                 <table class="table datatable-button-html5-columns table-responsive">
                     <thead>
                         <tr>
@@ -155,6 +157,49 @@
                             </td>
                         </tr>
                         @endforeach
+                    </tbody>
+                </table>
+
+                <hr class="my-4">
+
+                <h5 class="mb-3 font-weight-bold">Completed Fine Payments</h5>
+                <table class="table table-bordered table-hover table-sm" style="border: 1px solid #ddd;">
+                    <thead class="thead-light" style="background: #f8f9fa; border-bottom: 2px solid #ddd;">
+                        <tr class="text-center">
+                            <th style="width: 20%;">User ID</th>
+                            <th style="width: 45%;">Details</th>
+                            <th style="width: 20%;">Total Amount (LKR)</th>
+                            <th style="width: 20%;">Date</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @forelse($fines as $fine)
+                        <tr>
+                            <td class="text-center">{{ $fine->user_id }}</td>
+                            <td>
+                                @php $details = json_decode($fine->details_json, true); @endphp
+                                @if($details)
+                                <ul class="mb-0 pl-3" style="list-style-type: disc;">
+                                    @foreach($details as $item)
+                                    <li>
+                                        {{ $item['item_name'] ?? '' }} -
+                                        <span class="font-weight-bold">{{ number_format($item['amount'] ?? 0, 2)
+                                            }}</span>
+                                    </li>
+                                    @endforeach
+                                </ul>
+                                @else
+                                <em class="text-muted">No details available</em>
+                                @endif
+                            </td>
+                            <td class="text-center font-weight-bold">{{ number_format($fine->total_amount, 2) }}</td>
+                            <td class="text-center">{{ $fine->created_at->format('Y-m-d') }}</td>
+                        </tr>
+                        @empty
+                        <tr>
+                            <td colspan="4" class="text-center text-muted">No fine payments found for this student.</td>
+                        </tr>
+                        @endforelse
                     </tbody>
                 </table>
             </div>
@@ -220,9 +265,6 @@
                     </div>
                 </form>
             </div>
-
-
-
 
 
             <div id="toast" style="
@@ -291,8 +333,8 @@
         updateRow(hash);
     });
 
-    document.querySelectorAll('.ajax-pay').forEach(function(form) {
-        form.addEventListener('submit', function(e) {
+    document.querySelectorAll('.ajax-pay').forEach(function (form) {
+        form.addEventListener('submit', function (e) {
             e.preventDefault();
             const hash = form.id.replace('form-', '');
             updateRow(hash);
@@ -306,32 +348,47 @@
                 },
                 credentials: 'same-origin'
             })
-            .then(async (res) => {
-                let data = {};
-                try { data = await res.json(); } catch (_) {}
+                .then(async (res) => {
+                    let data = {};
+                    try { data = await res.json(); } catch (_) { }
 
-                if (!res.ok) {
-                    if (res.status === 419) return showError('Session expired (419). Please refresh and try again.');
-                    if (res.status === 401 || res.status === 403) return showError('Not authorized. Please sign in again.');
-                    if (res.status === 422) {
-                        const msg = (data && data.message) || 'Validation failed. Select at least one month.';
-                        return showError(msg);
+                    if (!res.ok) {
+                        if (res.status === 419) return showError('Session expired (419). Please refresh and try again.');
+                        if (res.status === 401 || res.status === 403) return showError('Not authorized. Please sign in again.');
+                        if (res.status === 422) {
+                            const msg = (data && data.message) || 'Validation failed. Select at least one month.';
+                            return showError(msg);
+                        }
+                        return showError((data && (data.msg || data.message)) || 'Server error. Please try again.');
                     }
-                    return showError((data && (data.msg || data.message)) || 'Server error. Please try again.');
-                }
 
-                if (data.ok) {
-                    showToast('Payment Successful!');
-                    setTimeout(() => {
-                        document.body.style.transition = 'opacity 0.5s ease';
-                        document.body.style.opacity = '0';
-                        setTimeout(() => window.location.reload(), 500);
-                    }, 1200);
-                } else {
-                    showError(data.msg || 'Payment failed. Please try again.');
-                }
-            })
-            .catch(() => showError('Network error. Please try again.'));
+                    if (data.ok) {
+                        showToast('Payment Successful!');
+
+                        const paidCell = form.closest('tr').querySelector('td:nth-child(5)');
+                        if (paidCell) {
+                            const currentPaid = parseFloat(paidCell.textContent.replace(/,/g, '')) || 0;
+                            const newPayment = parseFloat(document.getElementById('pay-amount-display-' + hash).textContent);
+                            paidCell.textContent = (currentPaid + newPayment).toFixed(2);
+                        }
+
+                        const select = document.getElementById('months-select-' + hash);
+                        const selectedMonths = Array.from(select.selectedOptions).map(o => o.value);
+                        Array.from(select.options).forEach(opt => {
+                            if (selectedMonths.includes(opt.value)) {
+                                opt.disabled = true;
+                                opt.textContent = opt.value + ' (Paid)';
+                                opt.style.background = '#eee';
+                                opt.style.color = '#666';
+                            }
+                        });
+
+                        document.getElementById('pay-btn-' + hash).disabled = true;
+                        document.getElementById('pay-amount-display-' + hash).textContent = '0.00';
+                        document.getElementById('pay-months-count-' + hash).textContent = '(0 months)';
+                    }
+                })
+                .catch(() => showError('Network error. Please try again.'));
         });
     });
 })();
@@ -435,6 +492,7 @@
     calculateTotal();
 });
             </script>
+
 
 
             @endsection

@@ -18,6 +18,7 @@ use App\Http\Requests\Payment\PaymentCreate;
 use App\Http\Requests\Payment\PaymentUpdate;
 use Illuminate\Validation\ValidationException;
 use Throwable;
+use App\Models\Fine;
 
 class PaymentController extends Controller
 {
@@ -73,20 +74,28 @@ class PaymentController extends Controller
         return view('pages.support_team.payments.create', $d);
     }
 
-    public function invoice($st_id, $year = null)
-    {
-        if (!$st_id) {
-            return Qs::goWithDanger();
-        }
-
-        $inv            = $year ? $this->pay->getAllMyPR($st_id, $year) : $this->pay->getAllMyPR($st_id);
-        $d['sr']        = $this->student->findByUserId($st_id)->first();
-        $pr             = $inv->get();
-        $d['uncleared'] = $pr->where('paid', 0);
-        $d['cleared']   = $pr->where('paid', 1);
-
-        return view('pages.support_team.payments.invoice', $d);
+    // Fine And Invoice
+    
+public function invoice($st_id, $year = null)
+{
+    if (!$st_id) {
+        return Qs::goWithDanger();
     }
+
+    $inv            = $year ? $this->pay->getAllMyPR($st_id, $year) : $this->pay->getAllMyPR($st_id);
+    $d['sr']        = $this->student->findByUserId($st_id)->first();
+    $pr             = $inv->get();
+    $d['uncleared'] = $pr->where('paid', 0);
+    $d['cleared']   = $pr->where('paid', 1);
+
+ 
+    $userId = $d['sr']->user_id; 
+
+    $d['fines'] = Fine::where('user_id', $userId)->latest()->get();
+
+    return view('pages.support_team.payments.invoice', $d);
+}
+
 
     /* -------------------- Receipts -------------------- */
 
@@ -406,4 +415,6 @@ class PaymentController extends Controller
             ], 500);
         }
     }
+
+    
 }
