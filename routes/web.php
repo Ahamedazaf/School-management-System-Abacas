@@ -9,15 +9,10 @@ Auth::routes();
 Route::get('/privacy-policy', 'HomeController@privacy_policy')->name('privacy_policy');
 Route::get('/terms-of-use', 'HomeController@terms_of_use')->name('terms_of_use');
 
-
 Route::group(['middleware' => 'auth'], function () {
-
     Route::get('/', 'HomeController@dashboard')->name('home');
     // Route::get('/home', 'HomeController@dashboard')->name('home');
     Route::get('/dashboard', 'HomeController@dashboard')->name('dashboard');
-
-
-
 
     Route::group(['prefix' => 'my_account'], function () {
         Route::get('/', 'MyAccountController@edit_profile')->name('my_account');
@@ -25,15 +20,12 @@ Route::group(['middleware' => 'auth'], function () {
         Route::put('/change_password', 'MyAccountController@change_pass')->name('my_account.change_pass');
     });
 
-
     /*************** Support Team *****************/
-    Route::group(['namespace' => 'SupportTeam',], function () {
-
+    Route::group(['namespace' => 'SupportTeam'], function () {
         /*************** Students *****************/
         Route::group(['prefix' => 'students'], function () {
             Route::get('reset_pass/{st_id}', 'StudentRecordController@reset_pass')->name('st.reset_pass');
-            Route::get('studentinfo', 'StudentRecordController@studentinfo')->name('students.studentinfo' );
-
+            Route::get('studentinfo', 'StudentRecordController@studentinfo')->name('students.studentinfo');
 
             Route::get('graduated', 'StudentRecordController@graduated')->name('students.graduated');
             Route::put('not_graduated/{id}', 'StudentRecordController@not_graduated')->name('st.not_graduated');
@@ -65,7 +57,6 @@ Route::group(['middleware' => 'auth'], function () {
 
             /*************** TimeTable Records *****************/
             Route::group(['prefix' => 'records'], function () {
-
                 Route::group(['middleware' => 'teamSA'], function () {
                     Route::get('manage/{ttr}', 'TimeTableController@manage')->name('ttr.manage');
                     Route::post('/', 'TimeTableController@store_record')->name('ttr.store');
@@ -90,7 +81,6 @@ Route::group(['middleware' => 'auth'], function () {
 
         /*************** Payments *****************/
         Route::group(['prefix' => 'payments', 'as' => 'payments.'], function () {
-
             Route::get('manage/{class_id?}', 'PaymentController@manage')->name('manage');
             Route::get('invoice/{id}/{year?}', 'PaymentController@invoice')->name('invoice');
 
@@ -107,8 +97,6 @@ Route::group(['middleware' => 'auth'], function () {
 
             Route::get('summary', 'PaymentController@summary')->name('summary');
         });
-        
-
 
         /*************** Pins *****************/
         Route::group(['prefix' => 'pins'], function () {
@@ -122,7 +110,6 @@ Route::group(['middleware' => 'auth'], function () {
 
         /*************** Marks *****************/
         Route::group(['prefix' => 'marks'], function () {
-
             // FOR teamSA
             Route::group(['middleware' => 'teamSA'], function () {
                 Route::get('batch_fix', 'MarkController@batch_fix')->name('marks.batch_fix');
@@ -172,14 +159,12 @@ Route::group(['middleware' => 'auth'], function () {
 
 /************************ SUPER ADMIN ****************************/
 Route::group(['namespace' => 'SuperAdmin', 'middleware' => 'super_admin', 'prefix' => 'super_admin'], function () {
-
     Route::get('/settings', 'SettingController@index')->name('settings');
     Route::put('/settings', 'SettingController@update')->name('settings.update');
 });
 
 /************************ PARENT ****************************/
-Route::group(['namespace' => 'MyParent', 'middleware' => 'my_parent',], function () {
-
+Route::group(['namespace' => 'MyParent', 'middleware' => 'my_parent'], function () {
     Route::get('/my_children', 'MyController@children')->name('my_children');
 });
 
@@ -193,5 +178,3 @@ Route::delete('/fines/{fine}', [FineController::class, 'destroy'])->name('fines.
 //     ->name('payments.pay_additional');
 
 Route::post('/payments/{id}/pay-additional', [PaymentController::class, 'payAdditional'])->name('payments.pay_additional');
-
-
