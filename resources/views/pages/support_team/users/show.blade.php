@@ -43,19 +43,19 @@
                                         <td>{{$user->email }}</td>
                                     </tr>
                                 @endif
-                                @if($user->username)
+                                {{-- @if($user->username)
                                     <tr>
                                         <td class="font-weight-bold">Username</td>
                                         <td>{{$user->username }}</td>
                                     </tr>
-                                @endif
+                                @endif --}}
                                 @if($user->phone)
                                     <tr>
                                         <td class="font-weight-bold">Phone</td>
                                         <td>{{$user->phone.' '.$user->phone2 }}</td>
                                     </tr>
                                 @endif
-                                <tr>
+                                {{-- <tr>
                                     <td class="font-weight-bold">Birthday</td>
                                     <td>{{$user->dob }}</td>
                                 </tr>
@@ -93,7 +93,7 @@
                                             @endforeach
                                         </td>
                                     </tr>
-                                @endif
+                                @endif --}}
 
                                 @if($user->user_type == 'teacher')
                                     <tr>

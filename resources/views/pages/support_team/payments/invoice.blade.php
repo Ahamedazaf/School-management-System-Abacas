@@ -324,7 +324,7 @@
 
         if (totalInput > 0) {
             paidAmount = totalInput;
-            remainder = totalInput % monthlyFee;
+            remainder = totalInput %    lyFee;
         } else {
             const selectedMonths = Array.from(select.selectedOptions).filter(o => !o.disabled).length;
             paidAmount = selectedMonths * monthlyFee;

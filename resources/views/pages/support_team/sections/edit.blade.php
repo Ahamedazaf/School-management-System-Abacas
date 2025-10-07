@@ -27,7 +27,7 @@
                             </div>
                         </div>
 
-                        <div class="form-group row">
+                        {{-- <div class="form-group row">
                             <label for="teacher_id" class="col-lg-3 col-form-label font-weight-semibold">Teacher</label>
                             <div class="col-lg-9">
                                 <select data-placeholder="Select Teacher" class="form-control select-search" name="teacher_id" id="teacher_id">
@@ -37,7 +37,7 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
+                        </div> --}}
 
                         <div class="text-right">
                             <button type="submit" class="btn btn-primary">Submit form <i class="icon-paperplane ml-2"></i></button>

@@ -182,4 +182,14 @@ class StudentRecordController extends Controller
         return back()->with('flash_success', __('msg.del_ok'));
     }
 
+      /** Student Info (All Students + Classes) */
+    public function studentinfo()
+    {
+        $data['students'] = $this->student->all();   // fetch all students
+        $data['my_classes'] = $this->my_class->all(); // fetch all classes
+
+        return view('pages.support_team.students.studentinfo', $data);
+    }
+
+
 }

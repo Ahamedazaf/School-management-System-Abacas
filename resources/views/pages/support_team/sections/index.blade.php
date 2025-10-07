@@ -45,7 +45,7 @@
                                     </div>
                                 </div>
 
-                                <div class="form-group row">
+                                {{-- <div class="form-group row">
                                     <label for="teacher_id" class="col-lg-3 col-form-label font-weight-semibold">Teacher</label>
                                     <div class="col-lg-9">
                                         <select data-placeholder="Select Teacher" class="form-control select-search" name="teacher_id" id="teacher_id">
@@ -55,7 +55,7 @@
                                             @endforeach
                                         </select>
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <div class="text-right">
                                     <button type="submit" class="btn btn-primary">Submit form <i class="icon-paperplane ml-2"></i></button>
@@ -72,7 +72,7 @@
                                 <th>S/N</th>
                                 <th>Name</th>
                                 <th>Class</th>
-                                <th>Teacher</th>
+                                {{-- <th>Teacher</th> --}}
                                 <th>Action</th>
                             </tr>
                             </thead>
@@ -83,11 +83,11 @@
                                     <td>{{ $s->name }} @if($s->active)<i class='icon-check'> </i>@endif</td>
                                     <td>{{ $s->my_class->name }}</td>
 
-                                    @if($s->teacher_id)
+                                    {{-- @if($s->teacher_id)
                                     <td><a target="_blank" href="{{ route('users.show', Qs::hash($s->teacher_id)) }}">{{ $s->teacher->name }}</a></td>
                                         @else
                                         <td> - </td>
-                                    @endif
+                                    @endif --}}
 
                                     <td class="text-center">
                                         <div class="list-icons">

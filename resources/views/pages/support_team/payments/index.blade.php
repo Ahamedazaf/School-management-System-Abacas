@@ -59,21 +59,6 @@
                 {!! Qs::getPanelOptions() !!}
             </div>
 
-<<<<<<< HEAD
-        <div class="card-body">
-            <ul class="nav nav-tabs nav-tabs-highlight">
-                <li class="nav-item"><a href="#all-payments" class="nav-link active" data-toggle="tab">All Classes</a></li>
-                <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Class Payments</a>
-                    <div class="dropdown-menu dropdown-menu-right">
-                        @foreach($my_classes as $mc)
-                            <a href="#pc-{{ $mc->id }}" class="dropdown-item" data-toggle="tab">{{ $mc->name }}</a>
-                        @endforeach
-                    </div>
-                </li>
-            </ul>
-            
-=======
             <div class="card-body">
                 <ul class="nav nav-tabs nav-tabs-highlight">
                     <li class="nav-item"><a href="#all-payments" class="nav-link active" data-toggle="tab">All Classes</a>
@@ -88,7 +73,6 @@
                         </div>
                     </li>
                 </ul>
->>>>>>> 314e85ba7f473dd0d9b9b14a86989f37f88772b5
 
                 <div class="tab-content">
                     <div class="tab-pane fade show active" id="all-payments">
@@ -100,7 +84,7 @@
                                     <th>Amount</th>
                                     <th>Ref_No</th>
                                     <th>Class</th>
-                                    <th>Method</th>
+                                    {{-- <th>Method</th> --}}
                                     <th>Info</th>
                                     <th>Action</th>
                                 </tr>
@@ -113,7 +97,7 @@
                                         <td>{{ $p->amount }}</td>
                                         <td>{{ $p->ref_no }}</td>
                                         <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
-                                        <td>{{ ucwords($p->method) }}</td>
+                                        {{-- <td>{{ ucwords($p->method) }}</td> --}}
                                         <td>{{ $p->description }}</td>
                                         <td class="text-center">
                                             <div class="list-icons">
@@ -154,7 +138,7 @@
                                         <th>Amount</th>
                                         <th>Ref_No</th>
                                         <th>Class</th>
-                                        <th>Method</th>
+                                        {{-- <th>Method</th> --}}
                                         <th>Info</th>
                                         <th>Action</th>
                                     </tr>
@@ -167,7 +151,7 @@
                                             <td>{{ $p->amount }}</td>
                                             <td>{{ $p->ref_no }}</td>
                                             <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
-                                            <td>{{ ucwords($p->method) }}</td>
+                                            {{-- <td>{{ ucwords($p->method) }}</td> --}}
                                             <td>{{ $p->description }}</td>
                                             <td class="text-center">
                                                 <div class="list-icons">

@@ -159,18 +159,24 @@ public function invoice($st_id, $year = null)
             if (!is_numeric($id)) {
                 $id = Qs::decodeHash($id);
             }
-         $payment = ModelsPayment::where('id', $id)->first();
 
-if ($payment) {
-    $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
-    $payment->save();
+            
+if ($req->additional_amount) {
 
- return response()->json([
-                'ok'  => true,
-                'msg' => 'Record Updated Successfully',
-               
-            ], 200);} else {
-    return response()->json(['message' => 'Payment not found'], 404);
+    $payment = ModelsPayment::where('id', $id)->first();
+
+    if ($payment) {
+        $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
+        $payment->save();
+
+        return response()->json([
+            'ok'  => true,
+            'msg' => 'Record Updated Successfully',
+        ], 200);
+
+    } else {
+        return response()->json(['message' => 'Payment not found'], 404);
+    }
 }
 
 
@@ -429,7 +435,7 @@ if ($payment) {
             return $student;
         });
 
-        $total_fee          = $studentsWithPayments->count() * 10000;
+        $total_fee          = $studentsWithPayments->count();
         $current_month_paid = $studentsWithPayments->sum('monthly_paid');
         $pending_amount     = $total_fee - $current_month_paid;
 
