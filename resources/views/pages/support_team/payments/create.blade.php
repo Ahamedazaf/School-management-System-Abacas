@@ -1,13 +1,13 @@
 @extends('layouts.master')
 @section('page_title', 'Create Payment')
 @section('content')
- 
+
 <div class="card">
     <div class="card-header header-elements-inline">
         <h6 class="card-title">Create Payment</h6>
         {!! Qs::getPanelOptions() !!}
     </div>
- 
+
     <div class="card-body">
         <div class="row">
             <div class="col-md-6">
@@ -21,7 +21,7 @@
                                 placeholder="Eg. School Fees">
                         </div>
                     </div>
- 
+
                     <div class="form-group row">
                         <label for="my_class_id" class="col-lg-3 col-form-label font-weight-semibold">Class </label>
                         <div class="col-lg-9">
@@ -34,7 +34,7 @@
                             </select>
                         </div>
                     </div>
- 
+
                     {{-- <div class="form-group row">
                         <label for="student_id" class="col-lg-3 col-form-label font-weight-semibold">Student
                             Details</label>
@@ -50,7 +50,7 @@
                             </select>
                         </div>
                     </div> --}}
- 
+
                     {{-- <div class="form-group row">
                         <label for="method" class="col-lg-3 col-form-label font-weight-semibold">Payment Method</label>
                         <div class="col-lg-9">
@@ -60,27 +60,28 @@
                             </select>
                         </div>
                     </div> --}}
- 
+
                     <div class="form-group row">
                         <label for="amount" class="col-lg-3 col-form-label font-weight-semibold">Amount (<del
                                 style="text-decoration-style: double">LKR</del>) <span
                                 class="text-danger">*</span></label>
                         <div class="col-lg-9">
-                            <input class="form-control" value="{{ old('amount') }}" required name="amount"  id="amount"
+                            <input class="form-control" value="{{ old('amount') }}" required name="amount" id="amount"
                                 type="number">
                         </div>
                     </div>
- 
+
                     <!-- Monthly amount row (auto-calculated) -->
                     <div class="form-group row">
                         <label for="monthly_amount" class="col-lg-3 col-form-label font-weight-semibold">
                             Monthly Amount (LKR)
                         </label>
                         <div class="col-lg-9">
-                            <input class="form-control" readonly name="monthly_amount" id="monthly_amount" type="number">
+                            <input class="form-control" readonly name="monthly_amount" id="monthly_amount"
+                                type="number">
                         </div>
                     </div>
- 
+
                     <div class="form-group row">
                         <label for="description"
                             class="col-lg-3 col-form-label font-weight-semibold">Description</label>
@@ -89,63 +90,75 @@
                                 id="description" type="text">
                         </div>
                     </div>
- 
+
                     <!-- SECTION 2: FEE BREAKDOWN -->
-                        <div class="mb-4">
-                            <h5 class="text-lg font-semibold text-gray-700 mb-3">Additional Items Fee</h5>
-                            <div id="feeItemsContainer" class="space-y-3">
-                                <!-- Initial Fee Item -->
-                                <div class="row g-3 align-items-center fee-item bg-gray-50 p-3 rounded-lg border">
-                                    <div class="col-sm-5">
-                                        <label for="itemName_1" class="form-label visually-hidden">Item Name</label>
-                                        <input type="text" class="form-control rounded-md p-2" id="itemName_1" placeholder="Eg: Dress code" required>
+                    <div class="mb-4">
+                        <h5 class="text-lg font-semibold text-gray-700 mb-3">Additional Items Fee</h5>
+                        <div id="feeItemsContainer" class="space-y-3">
+                            <!-- Initial Fee Item -->
+                            {{-- <div class="row g-3 align-items-center fee-item bg-gray-50 p-3 rounded-lg border"> --}}
+                                {{-- <div class="col-sm-5">
+                                    <label for="itemName_1" class="form-label visually-hidden">Item Name</label>
+                                    <input type="text" class="form-control rounded-md p-2" id="itemName_1"
+                                        placeholder="Eg: Dress code" required>
+                                </div> --}}
+                                {{-- <div class="col-sm-5">
+                                    <label for="itemAmount_1" class="form-label visually-hidden">Amount</label>
+                                    <div class="input-group">
+                                        <span class="input-group-text rounded-l-md">LKR</span>
+                                        <input type="number" step="0.01" class="form-control rounded-r-md p-2"
+                                            id="itemAmount_1" placeholder="0.00" min="0" required
+                                            oninput="calculateTotal()">
                                     </div>
-                                    <div class="col-sm-5">
-                                        <label for="itemAmount_1" class="form-label visually-hidden">Amount</label>
-                                        <div class="input-group">
-                                            <span class="input-group-text rounded-l-md">LKR</span>
-                                            <input type="number" step="0.01" class="form-control rounded-r-md p-2" id="itemAmount_1" placeholder="0.00" min="0" required oninput="calculateTotal()">
-                                        </div>
-                                    </div>
-                                    <div class="col-sm-2 d-grid">
-                                        <button type="button" class="btn btn-outline-danger" onclick="removeFeeItem(this)">
-                                            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" viewBox="0 0 16 16">
-                                                <path d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2.5zm3 3a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 4zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z"/>
-                                            </svg>
-                                        </button>
-                                    </div>
-                                </div>
-                            </div>
-                            <!-- Add Item Button -->
-                            <div class="mt-2">
-                                <button type="button" class="btn btn-outline-primary w-100 py-2 rounded" onclick="addFeeItem()">
-                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor" class="inline-block align-text-top me-1" viewBox="0 0 16 16">
-                                        <path d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z"/>
-                                    </svg>
-                                    Add Fee Item
-                                </button>
-                            </div>
+                                </div> --}}
+                                {{-- <div class="col-sm-2 d-grid">
+                                    <button type="button" class="btn btn-outline-danger" onclick="removeFeeItem(this)">
+                                        <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16"
+                                            fill="currentColor" viewBox="0 0 16 16">
+                                            <path
+                                                d="M2.5 1a1 1 0 0 0-1 1v1a1 1 0 0 0 1 1H3v9a2 2 0 0 0 2 2h6a2 2 0 0 0 2-2V4h.5a1 1 0 0 0 1-1V2a1 1 0 0 0-1-1H2.5zm3 3a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7a.5.5 0 0 1 .5-.5zM8 4a.5.5 0 0 1 .5.5v7a.5.5 0 0 1-1 0v-7A.5.5 0 0 1 8 4zm3 .5a.5.5 0 0 0-1 0v7a.5.5 0 0 0 1 0v-7z" />
+                                        </svg>
+                                    </button>
+                                </div> --}}
+                            {{-- </div> --}}
                         </div>
- 
-                        <!-- SECTION 3: TOTAL & SUBMIT -->
-                        <div class="d-flex justify-content-between align-items-center bg-gray-100 p-4 rounded-xl mt-3">
-                            <div class="text-xl font-bold text-gray-800">
-                                <span class="text-lg font-semibold text-dark">Total Additional Amount: <span id="totalAdditionalAmount" class="text-primary">LKR 0.00</span></span><br>
-                                <span class="text-lg font-semibold text-dark">Total Yearly Amount: <span id="totalYearlyAmount" class="text-primary">LKR 0.00</span></span><br><br>
-                                <h5 class="text-lg font-semibold text-dark">Total Amount: <span id="totalAmount" class="text-primary">LKR 0.00</span></h5>
-                            </div>
-                            <input type="hidden" name="amount" id="amount_hidden" value="0">
-                            <input type="hidden" name="additional_items" id="additional_items">
-                            <input type="hidden" name="total_amount" id="total_amount_hidden" value="0">
-                            <input type="hidden" name="additional_amount" id="additional_amount" value="0">
-                            <button type="submit" class="btn btn-primary btn-lg">Submit Payment <i class="icon-paperplane ml-2"></i></button>
+                        <!-- Add Item Button -->
+                        <div class="mt-2">
+                            <button type="button" class="btn btn-outline-primary w-100 py-2 rounded"
+                                onclick="addFeeItem()">
+                                {{-- <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                    class="inline-block align-text-top me-1" viewBox="0 0 16 16">
+                                    <path
+                                        d="M8 4a.5.5 0 0 1 .5.5v3h3a.5.5 0 0 1 0 1h-3v3a.5.5 0 0 1-1 0v-3h-3a.5.5 0 0 1 0-1h3v-3A.5.5 0 0 1 8 4z" />
+                                </svg> --}}
+                                Add Fee Item
+                            </button>
                         </div>
+                    </div>
+
+                    <!-- SECTION 3: TOTAL & SUBMIT -->
+                    <div class="d-flex justify-content-between align-items-center bg-gray-100 p-4 rounded-xl mt-3">
+                        <div class="text-xl font-bold text-gray-800">
+                            <span class="text-lg font-semibold text-dark">Total Additional Amount: <span
+                                    id="totalAdditionalAmount" class="text-primary">LKR 0.00</span></span><br>
+                            <span class="text-lg font-semibold text-dark">Total Yearly Amount: <span
+                                    id="totalYearlyAmount" class="text-primary">LKR 0.00</span></span><br><br>
+                            <h5 class="text-lg font-semibold text-dark">Total Amount: <span id="totalAmount"
+                                    class="text-primary">LKR 0.00</span></h5>
+                        </div>
+                        <input type="hidden" name="amount" id="amount_hidden" value="0">
+                        <input type="hidden" name="additional_items" id="additional_items">
+                        <input type="hidden" name="total_amount" id="total_amount_hidden" value="0">
+                        <input type="hidden" name="additional_amount" id="additional_amount" value="0">
+                        <button type="submit" class="btn btn-primary btn-lg">Submit Payment <i
+                                class="icon-paperplane ml-2"></i></button>
+                    </div>
                 </form>
             </div>
         </div>
     </div>
 </div>
- 
+
 <script>
     $(document).ready(function() {
     var allStudents = $('#student_id option:not(:first)').clone();
@@ -177,13 +190,13 @@
             newRow.innerHTML = `
                 <div class="col-sm-5">
                     <label for="itemName_${feeItemCounter}" class="form-label visually-hidden">Item Name</label>
-                    <input type="text" class="form-control rounded-md p-2" id="itemName_${feeItemCounter}" placeholder="Miscellaneous Fee" required>
+                    <input type="text" class="form-control rounded-md p-2" id="itemName_${feeItemCounter}" placeholder="Miscellaneous Fee" >
                 </div>
                 <div class="col-sm-5">
                     <label for="itemAmount_${feeItemCounter}" class="form-label visually-hidden">Amount</label>
                     <div class="input-group">
                         <span class="input-group-text rounded-l-md">LKR</span>
-                        <input type="number" step="0.01" class="form-control rounded-r-md p-2" id="itemAmount_${feeItemCounter}" placeholder="0.00" min="0" required oninput="calculateTotal()">
+                        <input type="number" step="0.01" class="form-control rounded-r-md p-2" id="itemAmount_${feeItemCounter}" placeholder="0.00" min="0"  oninput="calculateTotal()">
                     </div>
                 </div>
                 <div class="col-sm-2 d-grid">
@@ -288,5 +301,5 @@ window.onload = function() {
 };
  
 </script>
- 
+
 @endsection

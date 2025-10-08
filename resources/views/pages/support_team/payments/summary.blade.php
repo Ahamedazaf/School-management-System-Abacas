@@ -5,6 +5,20 @@
 
 <div class="row">
 
+     {{-- Total Paid This Month --}}
+    <div class="col-lg-4 col-md-6 mb-4">
+        <div class="card shadow-sm border-left-primary h-100">
+            <div class="card-body text-center">
+                <div class="mb-2">
+                    <i class="icon-check icon-4x text-primary"></i>
+                </div>
+                <h5 class="card-title text-uppercase text-muted">Total Monthly Fees</h5>
+
+                <h3 class="font-weight-bold">{{ number_format($total_fee, 2) }}</h3>
+            </div>
+        </div>
+    </div>
+
     {{-- Total Payments --}}
     <div class="col-lg-4 col-md-6 mb-4">
         <div class="card shadow-sm border-left-warning h-100">
@@ -12,24 +26,13 @@
                 <div class="mb-2">
                     <i class="icon-cash3 icon-4x text-warning"></i>
                 </div>
-                <h5 class="card-title text-uppercase text-muted">Total Payments</h5>
-                <h3 class="font-weight-bold">{{ number_format($total_fee, 2) }}</h3>
-            </div>
-        </div>
-    </div>
-
-    {{-- Total Paid This Month --}}
-    <div class="col-lg-4 col-md-6 mb-4">
-        <div class="card shadow-sm border-left-primary h-100">
-            <div class="card-body text-center">
-                <div class="mb-2">
-                    <i class="icon-check icon-4x text-primary"></i>
-                </div>
-                <h5 class="card-title text-uppercase text-muted">Paid This Month</h5>
+                <h5 class="card-title text-uppercase text-muted">Total Paid To This Month</h5>
                 <h3 class="font-weight-bold">{{ number_format($current_month_paid, 2) }}</h3>
             </div>
         </div>
     </div>
+
+   
 
     {{-- Pending Amount This Month --}}
     <div class="col-lg-4 col-md-6 mb-4">
@@ -83,29 +86,30 @@
                     <th>Student Name</th>
                     <th>Monthly Fee</th>
                     <th>Paid To This Month</th>
-                    <th>Pending</th>
-                    
+                    <th>Status</th>
+
                 </tr>
             </thead>
-            <tbody>
+           <tbody>
+    @foreach($students as $index => $student)
+    <tr>
+        <td>{{ $index + 1 }}</td>
+        <td>{{ $student->name }}</td>
+        <td>{{ number_format($student->fee_demand, 2) }}</td>
 
-                @foreach($students as $index => $student)
+        <td>{{ number_format($student->paid_this_month, 2) }}</td>
 
-                <tr>
-                    <td>{{ $index + 1 }}</td>
-                    <td>{{ $student->name }}</td>
-                    <td>{{ number_format($student->fee_demand, 2) }}</td>
-                    <td>{{ number_format($student->monthly_paid, 2) }}</td>
-                    <td>
-                        @if($student->pending > 0)
-                        <span class="badge badge-danger">{{ number_format($student->pending, 2) }}</span>
-                        @else
-                        <span class="badge badge-success">No Pending</span>
-                        @endif
-                    </td>
-                </tr>
-                @endforeach
-            </tbody>
+        <td>
+            @if($student->pending > 0)
+                <span class="badge badge-danger">Pending</span>
+            @else
+                <span class="badge badge-success">No Pending</span>
+            @endif
+        </td>
+    </tr>
+    @endforeach
+</tbody>
+
         </table>
     </div>
 </div>

@@ -78,53 +78,53 @@ class PaymentController extends Controller
     }
 
     // Fine And Invoice
-    
-public function invoice($st_id, $year = null)
-{
-    if (!$st_id) {
-        return Qs::goWithDanger();
+
+    public function invoice($st_id, $year = null)
+    {
+        if (!$st_id) {
+            return Qs::goWithDanger();
+        }
+
+        $inv = $year
+            ? $this->pay->getAllMyPR($st_id, $year)
+            : $this->pay->getAllMyPR($st_id);
+
+        $d['sr']        = $this->student->findByUserId($st_id)->first();
+        $pr             = $inv->get();
+        $d['uncleared'] = $pr->where('paid', 0);
+        $d['cleared']   = $pr->where('paid', 1);
+
+        $userId = $d['sr']->user_id;
+        $d['fines'] = Fine::where('user_id', $userId)->latest()->get();
+
+        // ✅ Instead of querying by student_id, just get the first payment record
+        $d['additional_payment'] = $pr->first();
+
+        return view('pages.support_team.payments.invoice', $d);
     }
-
-    $inv = $year 
-        ? $this->pay->getAllMyPR($st_id, $year) 
-        : $this->pay->getAllMyPR($st_id);
-
-    $d['sr']        = $this->student->findByUserId($st_id)->first();
-    $pr             = $inv->get();
-    $d['uncleared'] = $pr->where('paid', 0);
-    $d['cleared']   = $pr->where('paid', 1);
-
-    $userId = $d['sr']->user_id; 
-    $d['fines'] = Fine::where('user_id', $userId)->latest()->get();
-
-    // ✅ Instead of querying by student_id, just get the first payment record
-    $d['additional_payment'] = $pr->first();
-
-    return view('pages.support_team.payments.invoice', $d);
-}
 
 
 
     /* -------------------- Receipts -------------------- */
 
-   public function receipts($pr_id)
-{
-    $pr = PaymentRecord::with(['receipt', 'payment'])->find($pr_id);
-    if (!$pr) {
-        return back()->with('flash_danger', 'Payment record not found.');
+    public function receipts($pr_id)
+    {
+        $pr = PaymentRecord::with(['receipt', 'payment'])->find($pr_id);
+        if (!$pr) {
+            return back()->with('flash_danger', 'Payment record not found.');
+        }
+
+        $d['pr']       = $pr;
+        $d['receipts'] = $pr->receipt;
+        $d['payment']  = $pr->payment;
+        $d['sr']       = $this->student->findByUserId($pr->student_id)->first();
+        // return $d['payment'];
+        $d['s'] = Setting::all()->flatMap(function ($s) {
+            return [$s->type => $s->description ?? ''];
+        });
+
+        return view('pages.support_team.payments.receipt', $d);
     }
-
-    $d['pr']       = $pr;
-    $d['receipts'] = $pr->receipt;
-    $d['payment']  = $pr->payment;
-    $d['sr']       = $this->student->findByUserId($pr->student_id)->first();
-// return $d['payment'];
-    $d['s'] = Setting::all()->flatMap(function ($s) {
-        return [$s->type => $s->description ?? ''];
-    });
-
-    return view('pages.support_team.payments.receipt', $d);
-}
 
 
     public function pdf_receipts($pr_id)
@@ -135,7 +135,7 @@ public function invoice($st_id, $year = null)
         }
 
         $d['pr']      = $pr;
-        $d['receipts']= $pr->receipt;
+        $d['receipts'] = $pr->receipt;
         $d['payment'] = $pr->payment;
         $d['sr']      = $this->student->findByUserId($pr->student_id)->first();
         $d['s']       = Setting::all()->flatMap(fn($s) => [$s->type => $s->description]);
@@ -160,24 +160,23 @@ public function invoice($st_id, $year = null)
                 $id = Qs::decodeHash($id);
             }
 
-            
-if ($req->additional_amount) {
 
-    $payment = ModelsPayment::where('id', $id)->first();
+            if ($req->additional_amount) {
 
-    if ($payment) {
-        $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
-        $payment->save();
+                $payment = ModelsPayment::where('id', $id)->first();
 
-        return response()->json([
-            'ok'  => true,
-            'msg' => 'Record Updated Successfully',
-        ], 200);
+                if ($payment) {
+                    $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
+                    $payment->save();
 
-    } else {
-        return response()->json(['message' => 'Payment not found'], 404);
-    }
-}
+                    return response()->json([
+                        'ok'  => true,
+                        'msg' => 'Record Updated Successfully',
+                    ], 200);
+                } else {
+                    return response()->json(['message' => 'Payment not found'], 404);
+                }
+            }
 
 
             $validated = $req->validate([
@@ -185,7 +184,7 @@ if ($req->additional_amount) {
                 'months.*' => ['string']
             ]);
 
-    
+
 
 
             $pr = $this->pay->findRecord($id);
@@ -243,7 +242,7 @@ if ($req->additional_amount) {
             return response()->json([
                 'ok'  => true,
                 'msg' => 'Record Updated Successfully',
-                'data'=> [
+                'data' => [
                     'amt_paid_now' => $newPaymentAmount,
                     'total_paid'   => $totalPaid,
                     'balance'      => $balance,
@@ -251,7 +250,6 @@ if ($req->additional_amount) {
                     'fully_paid'   => (bool)$fullyPaid,
                 ],
             ], 200);
-
         } catch (ValidationException $e) {
             return response()->json([
                 'ok'     => false,
@@ -286,7 +284,7 @@ if ($req->additional_amount) {
                 return Qs::goWithDanger('payments.manage');
             }
             $d['selected']   = true;
-            $d['my_class_id']= $class_id;
+            $d['my_class_id'] = $class_id;
         }
 
         return view('pages.support_team.payments.manage', $d);
@@ -327,7 +325,7 @@ if ($req->additional_amount) {
     {
         $data          = $req->all();
         $data['year']  = $this->year;
-        $data['ref_no']= Pay::genRefCode();
+        $data['ref_no'] = Pay::genRefCode();
 
         $payment  = $this->pay->create($data);
         $students = $this->student->getRecord([])->get();
@@ -347,48 +345,47 @@ if ($req->additional_amount) {
         return Qs::jsonStoreOk();
     }
 
-   public function edit($id)
-{
-    $d['payment'] = $pay = $this->pay->find($id);
-    $d['my_classes'] = $this->my_class->all(); // 👈 add this line
- 
-    return is_null($pay)
-        ? Qs::goWithDanger('payments.index')
-        : view('pages.support_team.payments.edit', $d);
-}
+    public function edit($id)
+    {
+        $d['payment'] = $pay = $this->pay->find($id);
+        $d['my_classes'] = $this->my_class->all(); // 👈 add this line
 
-  public function update(PaymentUpdate $req, $id)
-{
-    $data = $req->all();
- 
-    // Always set additional_items JSON (even if empty)
-    $data['additional_items'] = $req->filled('additional_items')
-        ? $req->additional_items
-        : json_encode([]);
- 
-    // Decode additional items
-    $additional = json_decode($data['additional_items'], true);
- 
-    // Calculate additional amount total
-    $additionalAmount = 0;
-    if (is_array($additional)) {
-        foreach ($additional as $item) {
-            $additionalAmount += isset($item['amount']) ? floatval($item['amount']) : 0;
-        }
+        return is_null($pay)
+            ? Qs::goWithDanger('payments.index')
+            : view('pages.support_team.payments.edit', $d);
     }
- 
-    // Store additional amount
-    $data['additional_amount'] = $additionalAmount;
- 
-    // Calculate total amount (base + additional)
-    $data['total_amount'] = floatval($req->amount) + $additionalAmount;
- 
-    // Update DB record
-    $this->pay->update($id, $data);
- 
-    return redirect()->back()->with('success', 'Payment updated successfully!');
- 
-}
+
+    public function update(PaymentUpdate $req, $id)
+    {
+        $data = $req->all();
+
+        // Always set additional_items JSON (even if empty)
+        $data['additional_items'] = $req->filled('additional_items')
+            ? $req->additional_items
+            : json_encode([]);
+
+        // Decode additional items
+        $additional = json_decode($data['additional_items'], true);
+
+        // Calculate additional amount total
+        $additionalAmount = 0;
+        if (is_array($additional)) {
+            foreach ($additional as $item) {
+                $additionalAmount += isset($item['amount']) ? floatval($item['amount']) : 0;
+            }
+        }
+
+        // Store additional amount
+        $data['additional_amount'] = $additionalAmount;
+
+        // Calculate total amount (base + additional)
+        $data['total_amount'] = floatval($req->amount) + $additionalAmount;
+
+        // Update DB record
+        $this->pay->update($id, $data);
+
+        return redirect()->back()->with('success', 'Payment updated successfully!');
+    }
 
     public function destroy($id)
     {
@@ -409,6 +406,7 @@ if ($req->additional_amount) {
         return back()->with('flash_success', __('msg.update_ok'));
     }
 
+    //  Fees Summary Bugs
     public function summary(Request $request)
     {
         $studentsQuery = DB::table('users')
@@ -419,33 +417,41 @@ if ($req->additional_amount) {
             $studentsQuery->where('student_records.my_class_id', $request->class_id);
         }
 
-        $students = $studentsQuery->select('users.*', 'student_records.my_class_id')->get();
+        $students = $studentsQuery
+            ->select('users.*', 'student_records.my_class_id')
+            ->get();
 
         $studentsWithPayments = $students->map(function ($student) {
-            $monthlyPaid = DB::table('payment_records')
+
+            $amountPaidThisMonth = DB::table('payment_records')
                 ->where('student_id', $student->id)
-                ->whereMonth('created_at', now()->month)
                 ->whereYear('created_at', now()->year)
+                ->whereMonth('created_at', now()->month)
                 ->sum('amt_paid');
 
-            $student->monthly_paid = (float)$monthlyPaid;
-            $student->fee_demand   = 10000;
-            $student->pending      = $student->fee_demand - $student->monthly_paid;
+            $monthlyFee = 10000;
+            $paid = min($amountPaidThisMonth, $monthlyFee);
+            $pending = max($monthlyFee - $paid, 0);
 
+            $student->fee_demand      = $monthlyFee;
+            $student->paid_this_month = $paid;
+            $student->pending         = $pending;
             return $student;
         });
 
-        $total_fee          = $studentsWithPayments->count();
-        $current_month_paid = $studentsWithPayments->sum('monthly_paid');
-        $pending_amount     = $total_fee - $current_month_paid;
+        $totalMonthlyFee    = $studentsWithPayments->sum('fee_demand');
+        $totalPaidThisMonth = $studentsWithPayments->sum('paid_this_month');
+        $totalPendingAmount = $totalMonthlyFee - $totalPaidThisMonth;
 
         return view('pages.support_team.payments.summary', [
-            'total_fee'          => $total_fee,
-            'current_month_paid' => $current_month_paid,
-            'pending_amount'     => $pending_amount,
-            'students'           => $studentsWithPayments
+            'total_fee'          => $totalMonthlyFee,
+            'current_month_paid' => $totalPaidThisMonth,
+            'pending_amount'     => $totalPendingAmount,
+            'students'           => $studentsWithPayments,
         ]);
     }
+
+
 
     public function fetchStudents(Request $request)
     {
@@ -476,33 +482,32 @@ if ($req->additional_amount) {
             ], 500);
         }
     }
-public function payAdditional($id, Request $request)
-{
-    $paymentId = Qs::decodeHash($id);
+    public function payAdditional($id, Request $request)
+    {
+        $paymentId = Qs::decodeHash($id);
 
-    $request->validate([
-        'additional_amount' => 'required|numeric|min:0.01',
-    ]);
+        $request->validate([
+            'additional_amount' => 'required|numeric|min:0.01',
+        ]);
 
-    // ✅ Fetch payment from payments table
-    $payment = DB::table('payments')->where('id', $paymentId)->first();
 
-    if (!$payment) {
-        return back()->with('error', 'Payment record not found.');
+        $payment = DB::table('payments')->where('id', $paymentId)->first();
+
+        if (!$payment) {
+            return back()->with('error', 'Payment record not found.');
+        }
+
+        $enteredAmount = $request->input('additional_amount');
+
+        if ($enteredAmount > $payment->additional_amount) {
+            return back()->with('error', 'Entered amount cannot exceed the total additional payment.');
+        }
+
+
+        DB::table('payments')->where('id', $paymentId)->update([
+            'additional_amount' => $payment->additional_amount - $enteredAmount
+        ]);
+
+        return back()->with('success', 'Additional payment of ' . number_format($enteredAmount, 2) . ' LKR completed successfully!');
     }
-
-    $enteredAmount = $request->input('additional_amount');
-
-    if ($enteredAmount > $payment->additional_amount) {
-        return back()->with('error', 'Entered amount cannot exceed the total additional payment.');
-    }
-
-    // ✅ Deduct entered amount
-    DB::table('payments')->where('id', $paymentId)->update([
-        'additional_amount' => $payment->additional_amount - $enteredAmount
-    ]);
-
-    return back()->with('success', 'Additional payment of ' . number_format($enteredAmount, 2) . ' LKR completed successfully!');
-}
-
 }

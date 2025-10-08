@@ -70,7 +70,7 @@
                                 </select>
                             </td>
                             <td style="min-width:210px;">
-                                {{-- ✅ Regular monthly payment form --}}
+
                                 <form id="form-{{ $hash }}" method="post" class="ajax-pay"
                                     action="{{ route('payments.pay_now', Qs::hash($uc->id)) }}">
                                     @csrf
@@ -87,7 +87,7 @@
                                     </div>
                                 </form>
 
-                                {{-- ✅ Additional Payment Form (separate & independent) --}}
+
                                 @if(isset($uc->payment->additional_amount) && $uc->payment->additional_amount > 0)
                                 <div class="alert alert-info mt-2 p-2 text-center">
                                     <strong>Additional Payment Due:</strong><br>
@@ -324,7 +324,7 @@
 
         if (totalInput > 0) {
             paidAmount = totalInput;
-            remainder = totalInput %    lyFee;
+            remainder = totalInput % monthlyFee;
         } else {
             const selectedMonths = Array.from(select.selectedOptions).filter(o => !o.disabled).length;
             paidAmount = selectedMonths * monthlyFee;
@@ -440,7 +440,7 @@
                         });
 
                         document.getElementById('total-input-' + hash).value = '';
-                        document.getElementById('pay-btn-' + hash).disabled = true;
+                        document.getElementById('pay-btn-' + hash).disabled = true; 
                         document.querySelector('.pay-amount-display-' + hash).textContent = '0.00';
                         document.getElementById('pay-months-count-' + hash).textContent = '(0 months)';
                     }

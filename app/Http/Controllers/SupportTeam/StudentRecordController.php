@@ -169,18 +169,24 @@ class StudentRecordController extends Controller
         return Qs::jsonUpdateOk();
     }
 
-    public function destroy($st_id)
-    {
-        $st_id = Qs::decodeHash($st_id);
-        if(!$st_id){return Qs::goWithDanger();}
+   public function destroy($st_id)
+{
+    $st_id = Qs::decodeHash($st_id);
+    if(!$st_id){ return Qs::goWithDanger(); }
 
-        $sr = $this->student->getRecord(['user_id' => $st_id])->first();
-        $path = Qs::getUploadPath('student').$sr->user->code;
-        Storage::exists($path) ? Storage::deleteDirectory($path) : false;
-        $this->user->delete($sr->user->id);
+    $sr = $this->student->find($st_id);
+    if(!$sr){ return back()->with('flash_danger', 'Student record not found!'); }
 
-        return back()->with('flash_success', __('msg.del_ok'));
+    $path = Qs::getUploadPath('student').$sr->user->code;
+    if(Storage::exists($path)) {
+        Storage::deleteDirectory($path);
     }
+
+    $this->user->delete($sr->user->id);
+
+    return back()->with('flash_success', __('msg.del_ok'));
+}
+
 
       /** Student Info (All Students + Classes) */
     public function studentinfo()
