@@ -449,6 +449,110 @@
         });
     });
 })();
+// Fine Culculate Code importand
+function calculateTotal() {
+    let total = 0;
+    document.querySelectorAll('input[name="itemAmount[]"]').forEach(input => {
+        total += parseFloat(input.value) || 0;
+    });
+    document.getElementById('totalAmount').textContent = total.toFixed(2);
+}
+
+function addFineItem() {
+    const container = document.getElementById('fineItemsContainer');
+    const div = document.createElement('div');
+    div.classList.add('row', 'g-3', 'align-items-end', 'fine-item', 'mb-3', 'p-3', 'rounded-3');
+    div.style.background = '#f8f9fa';
+    div.style.border = '1px solid #e5e7eb';
+
+    div.innerHTML = `
+        <div class="col-md-6">
+            <label class="form-label text-muted">Item Name</label>
+            <input type="text" name="itemName[]" class="form-control rounded-3" placeholder="e.g., What Lost !" required>
+        </div>
+        <div class="col-md-4">
+            <label class="form-label text-muted">Amount (LKR)</label>
+            <input type="number" step="0.01" class="form-control rounded-3" name="itemAmount[]" placeholder="Amount" min="0" required oninput="calculateTotal()">
+        </div>
+        <div class="col-md-2 d-flex align-items-end">
+            <button type="button" class="btn btn-outline-danger w-100 rounded-3" onclick="removeFineItem(this)">
+                <i class="icon-trash"></i>
+            </button>
+        </div>
+    `;
+    container.appendChild(div);
+}
+
+function removeFineItem(btn) {
+    btn.closest('.fine-item').remove();
+    calculateTotal();
+}
+
+
+// Fine Culculate Code importand
+document.getElementById('fineForm').addEventListener('submit', function(e) {
+    e.preventDefault(); // Prevent normal form submit
+
+    const form = this;
+
+    fetch(form.action, {
+        method: 'POST',
+        body: new FormData(form),
+        headers: {
+            'X-Requested-With': 'XMLHttpRequest',
+            'Accept': 'application/json'
+        },
+        credentials: 'same-origin'
+    })
+    .then(async res => {
+        let data = {};
+        try { data = await res.json(); } catch(_) {}
+        
+        if (!res.ok) {
+            alert(data.message || 'Something went wrong.');
+            return;
+        }
+
+        // Show Bootstrap success alert on page
+        const alertDiv = document.createElement('div');
+        alertDiv.className = 'alert alert-success alert-dismissible fade show';
+        alertDiv.role = 'alert';
+        alertDiv.innerHTML = `
+            ${data.message || 'Fine invoice created successfully!'}
+            <button type="button" class="close" data-bs-dismiss="alert" aria-label="Close">
+                <span aria-hidden="true">&times;</span>
+            </button>
+        `;
+        form.prepend(alertDiv);
+
+        // Optional: clear form fields
+        form.reset();
+        document.getElementById('totalAmount').textContent = '0.00';
+        document.getElementById('fineItemsContainer').innerHTML = `
+            <div class="row g-3 align-items-end fine-item mb-3 p-3 rounded-3"
+                style="background: #f8f9fa; border: 1px solid #e5e7eb;">
+                <div class="col-md-6">
+                    <label class="form-label text-muted">Item Name</label>
+                    <input type="text" name="itemName[]" class="form-control rounded-3" placeholder="e.g., What Lost !" required>
+                </div>
+                <div class="col-md-4">
+                    <label class="form-label text-muted">Amount (LKR)</label>
+                    <input type="number" step="0.01" class="form-control rounded-3" name="itemAmount[]" placeholder="Amount" min="0" required oninput="calculateTotal()">
+                </div>
+                <div class="col-md-2 d-flex align-items-end">
+                    <button type="button" class="btn btn-outline-danger w-100 rounded-3" onclick="removeFineItem(this)">
+                        <i class="icon-trash"></i>
+                    </button>
+                </div>
+            </div>
+        `;
+    })
+    .catch(() => alert('Network error. Please try again.'));
+});
+
+
+            </script>
+
             </script>
 
             @endsection

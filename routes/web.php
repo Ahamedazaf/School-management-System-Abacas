@@ -30,6 +30,7 @@ Route::group(['middleware' => 'auth'], function () {
             Route::get('graduated', 'StudentRecordController@graduated')->name('students.graduated');
             Route::put('not_graduated/{id}', 'StudentRecordController@not_graduated')->name('st.not_graduated');
             Route::get('list/{class_id}', 'StudentRecordController@listByClass')->name('students.list')->middleware('teamSAT');
+            
 
             /* Promotions */
             Route::post('promote_selector', 'PromotionController@selector')->name('students.promote_selector');
@@ -178,3 +179,6 @@ Route::delete('/fines/{fine}', [FineController::class, 'destroy'])->name('fines.
 //     ->name('payments.pay_additional');
 
 Route::post('/payments/{id}/pay-additional', [PaymentController::class, 'payAdditional'])->name('payments.pay_additional');
+
+
+

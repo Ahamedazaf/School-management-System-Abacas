@@ -348,7 +348,7 @@ class PaymentController extends Controller
     public function edit($id)
     {
         $d['payment'] = $pay = $this->pay->find($id);
-        $d['my_classes'] = $this->my_class->all(); // 👈 add this line
+        $d['my_classes'] = $this->my_class->all();
 
         return is_null($pay)
             ? Qs::goWithDanger('payments.index')
@@ -384,7 +384,7 @@ class PaymentController extends Controller
         // Update DB record
         $this->pay->update($id, $data);
 
-        return redirect()->back()->with('success', 'Payment updated successfully!');
+        return redirect()->route('payments.index')->with('success', 'Payment updated successfully!');
     }
 
     public function destroy($id)

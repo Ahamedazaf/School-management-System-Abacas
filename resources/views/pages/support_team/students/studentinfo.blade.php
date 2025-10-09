@@ -32,7 +32,7 @@
                             <th>Photo</th>
                             <th>Name</th>
                             <th>ADM_No</th>
-                            <th>Section</th>
+                            <th>Class</th>
                             <th>Email</th>
                             <th>Action</th>
                         </tr>

@@ -20,7 +20,7 @@
                             <thead>
                             <tr>
                                 <th>S/N</th>
-                                <th>Name</th>
+                                <th>Class Name</th>
                                 <th>Class Type</th>
                                 <th>Action</th>
                             </tr>
