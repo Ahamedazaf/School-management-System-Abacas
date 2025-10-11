@@ -219,13 +219,14 @@ class PaymentController extends Controller
             $updatedMonths    = array_values(array_unique(array_merge($alreadyPaidMonths, $newMonths)));
             $monthlyAmount    = round($payment->amount / 12, 2);
             $newPaymentAmount = round($monthlyAmount * count($newMonths), 2);
-            $currentPaid      = (float) ($pr->amt_paid ?? 0);
-            $totalPaid        = round($currentPaid + $newPaymentAmount, 2);
-            $balance          = round(max(0, $payment->amount - $totalPaid), 2);
+            $total_paid      = (float) ($pr->amt_paid + $req->total_value ?? 0);
+            // $totalPaid        = round($currentPaid + $newPaymentAmount, 2);
+            $balance          = round(max(0, $payment->amount - $total_paid), 2);
             $fullyPaid        = count($updatedMonths) >= 12 ? 1 : 0;
 
             $this->pay->updateRecord($id, [
-                'amt_paid'    => $totalPaid,
+                'amt_paid'    => $total_paid,
+                'today_paid'    => $req->total_value,
                 'balance'     => $balance,
                 'paid'        => $fullyPaid,
                 'paid_months' => json_encode($updatedMonths),
@@ -233,7 +234,7 @@ class PaymentController extends Controller
             ]);
 
             $this->pay->createReceipt([
-                'amt_paid' => $newPaymentAmount,
+                'amt_paid' => $req->total_value,
                 'balance'  => $balance,
                 'pr_id'    => $id,
                 'year'     => $this->year,
@@ -244,7 +245,7 @@ class PaymentController extends Controller
                 'msg' => 'Record Updated Successfully',
                 'data' => [
                     'amt_paid_now' => $newPaymentAmount,
-                    'total_paid'   => $totalPaid,
+                    'total_paid'   => $total_paid,
                     'balance'      => $balance,
                     'paid_months'  => $updatedMonths,
                     'fully_paid'   => (bool)$fullyPaid,

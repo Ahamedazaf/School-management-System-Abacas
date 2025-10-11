@@ -11,6 +11,7 @@ class PaymentRecord extends Eloquent
         'student_id',
         'payment_id',
         'amt_paid',
+        'today_paid',
         'year',
         'paid',
         'amt_due',  
