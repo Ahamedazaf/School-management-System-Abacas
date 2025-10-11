@@ -13,9 +13,9 @@
 </head>
 
 <body>
-@include('partials.login.header')
-@yield('content')
-@include('partials.login.footer')
+    @include('partials.login.header')
+    @yield('content')
+    @include('partials.login.footer')
 
 </body>
 

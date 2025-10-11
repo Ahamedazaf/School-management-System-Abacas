@@ -1,18 +1,18 @@
 @extends('layouts.master')
-@section('page_title', 'Manage Users')
+@section('page_title', 'Manage Parents')
 @section('content')
 
     <div class="card">
         <div class="card-header header-elements-inline">
-            <h6 class="card-title">Manage Users</h6>
+            <h6 class="card-title">Manage Parents</h6>
             {!! Qs::getPanelOptions() !!}
         </div>
 
         <div class="card-body">
             <ul class="nav nav-tabs nav-tabs-highlight">
-                <li class="nav-item"><a href="#new-user" class="nav-link active" data-toggle="tab">Create New User</a></li>
+                <li class="nav-item"><a href="#new-user" class="nav-link active" data-toggle="tab">Create New Parents</a></li>
                 <li class="nav-item dropdown">
-                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Manage Users</a>
+                    <a href="#" class="nav-link dropdown-toggle" data-toggle="dropdown">Manage Parents</a>
                     <div class="dropdown-menu dropdown-menu-right">
                         @foreach($user_types as $ut)
                             <a href="#ut-{{ Qs::hash($ut->id) }}" class="dropdown-item" data-toggle="tab">{{ $ut->name }}s</a>
@@ -62,12 +62,12 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Username: </label>
                                         <input value="{{ old('username') }}" type="text" name="username" class="form-control" placeholder="Username">
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <div class="col-md-3">
                                     <div class="form-group">
@@ -86,20 +86,20 @@
                             </div>
 
                             <div class="row">
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <div class="form-group">
                                         <label>Date of Employment:</label>
                                         <input autocomplete="off" name="emp_date" value="{{ old('emp_date') }}" type="text" class="form-control date-pick" placeholder="Select Date...">
 
                                     </div>
-                                </div>
+                                </div> --}}
 
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="password">Password: </label>
                                         <input id="password" type="password" name="password" class="form-control"  >
                                     </div>
-                                </div>
+                                </div> --}}
 
                                 <div class="col-md-3">
                                     <div class="form-group">
@@ -112,7 +112,7 @@
                                     </div>
                                 </div>
 
-                                <div class="col-md-3">
+                                {{-- <div class="col-md-3">
                                     <div class="form-group">
                                         <label for="nal_id">Nationality: <span class="text-danger">*</span></label>
                                         <select data-placeholder="Choose..." required name="nal_id" id="nal_id" class="select-search form-control">
@@ -123,11 +123,11 @@
                                         </select>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                             <div class="row">
                                 {{--State--}}
-                                <div class="col-md-4">
+                                {{-- <div class="col-md-4">
                                     <label for="state_id">State: <span class="text-danger">*</span></label>
                                     <select onchange="getLGA(this.value)" required data-placeholder="Choose.." class="select-search form-control" name="state_id" id="state_id">
                                         <option value=""></option>
@@ -135,16 +135,16 @@
                                             <option {{ (old('state_id') == $st->id ? 'selected' : '') }} value="{{ $st->id }}">{{ $st->name }}</option>
                                         @endforeach
                                     </select>
-                                </div>
+                                </div> --}}
                                 {{--LGA--}}
-                                <div class="col-md-4">
+                                {{-- <div class="col-md-4">
                                     <label for="lga_id">LGA: <span class="text-danger">*</span></label>
                                     <select required data-placeholder="Select State First" class="select-search form-control" name="lga_id" id="lga_id">
                                         <option value=""></option>
                                     </select>
-                                </div>
+                                </div> --}}
                                 {{--BLOOD GROUP--}}
-                                <div class="col-md-4">
+                                {{-- <div class="col-md-4">
                                     <div class="form-group">
                                         <label for="bg_id">Blood Group: </label>
                                         <select class="select form-control" id="bg_id" name="bg_id" data-fouc data-placeholder="Choose..">
@@ -156,18 +156,18 @@
                                     </div>
                                 </div>
 
-                            </div>
+                            </div> --}}
 
                             <div class="row">
                                 {{--PASSPORT--}}
-                                <div class="col-md-6">
+                                {{-- <div class="col-md-6">
                                     <div class="form-group">
                                         <label class="d-block">Upload Passport Photo:</label>
                                         <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo" class="form-input-styled" data-fouc>
                                         <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
                                     </div>
                                 </div>
-                            </div>
+                            </div> --}}
 
                         </fieldset>
 

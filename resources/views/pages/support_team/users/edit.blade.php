@@ -62,7 +62,7 @@
 
                     </div>
 
-                    <div class="row">
+                    {{-- <div class="row">
                         @if(in_array($user->user_type, Qs::getStaff()))
                             <div class="col-md-4">
                                 <div class="form-group">
@@ -71,7 +71,7 @@
 
                                 </div>
                             </div>
-                        @endif
+                        @endif --}}
 
                         <div class="col-md-4">
                             <div class="form-group">
@@ -84,7 +84,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-4">
+                        {{-- <div class="col-md-4">
                             <div class="form-group">
                                 <label for="nal_id">Nationality: <span class="text-danger">*</span></label>
                                 <select data-placeholder="Choose..." required name="nal_id" id="nal_id" class="select-search form-control">
@@ -125,12 +125,12 @@
                                     @endforeach
                                 </select>
                             </div>
-                        </div>
+                        </div> --}}
 
                     </div>
 
                     {{--Passport--}}
-                    <div class="row">
+                    {{-- <div class="row">
                         <div class="col-md-6">
                             <div class="form-group">
                                 <label class="d-block">Upload Passport Photo:</label>
@@ -138,7 +138,7 @@
                                 <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
                             </div>
                         </div>
-                    </div>
+                    </div> --}}
 
                 </fieldset>
 

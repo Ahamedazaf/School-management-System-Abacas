@@ -7,7 +7,20 @@ use Eloquent;
 
 class PaymentRecord extends Eloquent
 {
-    protected $fillable =['student_id', 'payment_id', 'amt_paid', 'year', 'paid', 'balance', 'ref_no'];
+    protected $fillable = [
+        'student_id',
+        'payment_id',
+        'amt_paid',
+        'year',
+        'paid',
+        'balance',
+        'ref_no',
+        'paid_months', 
+    ];
+
+    protected $casts = [
+        'paid_months' => 'array', 
+    ];
 
     public function payment()
     {

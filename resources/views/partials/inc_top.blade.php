@@ -20,3 +20,8 @@
     <script src="{{ asset('global_assets/js/main/jquery.min.js') }} "></script>
     <script src="{{ asset('global_assets/js/main/bootstrap.bundle.min.js') }} "></script>
     <script src="{{ asset('global_assets/js/plugins/loaders/blockui.min.js') }} "></script>
+ <style>
+    .actions{
+        display:none
+    }
+ </style>

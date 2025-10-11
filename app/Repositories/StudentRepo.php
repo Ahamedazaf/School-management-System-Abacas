@@ -111,4 +111,8 @@ class StudentRepo {
         return Promotion::where($where)->get();
     }
 
+    public function all()
+   {
+       return $this->activeStudents()->with('user')->get()->sortBy('user.name');
+   }    
 }
