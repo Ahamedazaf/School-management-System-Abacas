@@ -73,6 +73,7 @@ use Illuminate\Support\Str;
                                                 <i class="icon-pencil"></i> Edit
                                             </a>
                                             @endif --}}
+                                            
 
                                             @if(Qs::userIsSuperAdmin())
                                             {{-- Delete --}}
