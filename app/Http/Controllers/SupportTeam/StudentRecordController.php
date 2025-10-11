@@ -20,16 +20,16 @@ class StudentRecordController extends Controller
 {
     protected $loc, $my_class, $user, $student;
 
-   public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student)
-   {
-       $this->middleware('teamSA', ['only' => ['edit','update', 'reset_pass', 'create', 'store', 'graduated'] ]);
-       $this->middleware('super_admin', ['only' => ['destroy',] ]);
+    public function __construct(LocationRepo $loc, MyClassRepo $my_class, UserRepo $user, StudentRepo $student)
+    {
+        $this->middleware('teamSA', ['only' => ['edit', 'update', 'reset_pass', 'create', 'store', 'graduated']]);
+        $this->middleware('super_admin', ['only' => ['destroy',]]);
 
         $this->loc = $loc;
         $this->my_class = $my_class;
         $this->user = $user;
         $this->student = $student;
-   }
+    }
 
     public function reset_pass($st_id)
     {
@@ -51,11 +51,11 @@ class StudentRecordController extends Controller
 
     public function store(StudentRecordCreate $req)
     {
-       $data =  $req->only(Qs::getUserRecord());
-       $sr =  $req->only(Qs::getStudentData());
+        $data =  $req->only(Qs::getUserRecord());
+        $sr =  $req->only(Qs::getStudentData());
 
         $ct = $this->my_class->findTypeByClass($req->my_class_id)->code;
-       /* $ct = ($ct == 'J') ? 'JSS' : $ct;
+        /* $ct = ($ct == 'J') ? 'JSS' : $ct;
         $ct = ($ct == 'S') ? 'SS' : $ct;*/
 
         $data['user_type'] = 'student';
@@ -64,13 +64,13 @@ class StudentRecordController extends Controller
         $data['password'] = Hash::make('student');
         $data['photo'] = Qs::getDefaultUserImage();
         $adm_no = $req->adm_no;
-        $data['username'] = strtoupper(Qs::getAppCode().'/'.$ct.'/'.$sr['year_admitted'].'/'.($adm_no ?: mt_rand(1000, 99999)));
+        $data['username'] = strtoupper(Qs::getAppCode() . '/' . $ct . '/' . $sr['year_admitted'] . '/' . ($adm_no ?: mt_rand(1000, 99999)));
 
-        if($req->hasFile('photo')) {
+        if ($req->hasFile('photo')) {
             $photo = $req->file('photo');
             $f = Qs::getFileMetaData($photo);
             $f['name'] = 'photo.' . $f['ext'];
-            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$data['code'], $f['name']);
+            $f['path'] = $photo->storeAs(Qs::getUploadPath('student') . $data['code'], $f['name']);
             $data['photo'] = asset('storage/' . $f['path']);
         }
 
@@ -114,12 +114,14 @@ class StudentRecordController extends Controller
     public function show($sr_id)
     {
         $sr_id = Qs::decodeHash($sr_id);
-        if(!$sr_id){return Qs::goWithDanger();}
+        if (!$sr_id) {
+            return Qs::goWithDanger();
+        }
 
         $data['sr'] = $this->student->getRecord(['id' => $sr_id])->first();
 
         /* Prevent Other Students/Parents from viewing Profile of others */
-        if(Auth::user()->id != $data['sr']->user_id && !Qs::userIsTeamSAT() && !Qs::userIsMyChild($data['sr']->user_id, Auth::user()->id)){
+        if (Auth::user()->id != $data['sr']->user_id && !Qs::userIsTeamSAT() && !Qs::userIsMyChild($data['sr']->user_id, Auth::user()->id)) {
             return redirect(route('dashboard'))->with('pop_error', __('msg.denied'));
         }
 
@@ -129,7 +131,9 @@ class StudentRecordController extends Controller
     public function edit($sr_id)
     {
         $sr_id = Qs::decodeHash($sr_id);
-        if(!$sr_id){return Qs::goWithDanger();}
+        if (!$sr_id) {
+            return Qs::goWithDanger();
+        }
 
         $data['sr'] = $this->student->getRecord(['id' => $sr_id])->first();
         $data['my_classes'] = $this->my_class->all();
@@ -143,17 +147,19 @@ class StudentRecordController extends Controller
     public function update(StudentRecordUpdate $req, $sr_id)
     {
         $sr_id = Qs::decodeHash($sr_id);
-        if(!$sr_id){return Qs::goWithDanger();}
+        if (!$sr_id) {
+            return Qs::goWithDanger();
+        }
 
         $sr = $this->student->getRecord(['id' => $sr_id])->first();
         $d =  $req->only(Qs::getUserRecord());
         $d['name'] = ucwords($req->name);
 
-        if($req->hasFile('photo')) {
+        if ($req->hasFile('photo')) {
             $photo = $req->file('photo');
             $f = Qs::getFileMetaData($photo);
             $f['name'] = 'photo.' . $f['ext'];
-            $f['path'] = $photo->storeAs(Qs::getUploadPath('student').$sr->user->code, $f['name']);
+            $f['path'] = $photo->storeAs(Qs::getUploadPath('student') . $sr->user->code, $f['name']);
             $d['photo'] = asset('storage/' . $f['path']);
         }
 
@@ -162,8 +168,6 @@ class StudentRecordController extends Controller
         $srec = $req->only(Qs::getStudentData());
 
         $this->student->updateRecord($sr_id, $srec); // Update St Rec
-
-        /*** If Class/Section is Changed in Same Year, Delete Marks/ExamRecord of Previous Class/Section ****/
         Mk::deleteOldRecord($sr->user->id, $srec['my_class_id']);
 
         return Qs::jsonUpdateOk();
@@ -172,24 +176,40 @@ class StudentRecordController extends Controller
     public function destroy($st_id)
     {
         $st_id = Qs::decodeHash($st_id);
-        if(!$st_id){return Qs::goWithDanger();}
+        if (!$st_id) {
+            return Qs::goWithDanger();
+        }
 
-        $sr = $this->student->getRecord(['user_id' => $st_id])->first();
-        $path = Qs::getUploadPath('student').$sr->user->code;
-        Storage::exists($path) ? Storage::deleteDirectory($path) : false;
+        $sr = $this->student->find($st_id);
+        if (!$sr) {
+            return back()->with('flash_danger', 'Student record not found!');
+        }
+
+        $path = Qs::getUploadPath('student') . $sr->user->code;
+        if (Storage::exists($path)) {
+            Storage::deleteDirectory($path);
+        }
+
         $this->user->delete($sr->user->id);
 
         return back()->with('flash_success', __('msg.del_ok'));
     }
 
-      /** Student Info (All Students + Classes) */
+
+    /** Student Info (All Students + Classes) */
+
     public function studentinfo()
     {
-        $data['students'] = $this->student->all();   // fetch all students
-        $data['my_classes'] = $this->my_class->all(); // fetch all classes
+        $students = $this->student->all();
+
+        // Modify ADM_No to show only the number (remove the prefix)
+        foreach ($students as $student) {
+            $student->adm_no = Str::after($student->adm_no, '//');
+        }
+
+        $data['students'] = $students;
+        $data['my_classes'] = $this->my_class->all();
 
         return view('pages.support_team.students.studentinfo', $data);
     }
-
-
 }

@@ -13,6 +13,7 @@ class PaymentRecord extends Eloquent
         'amt_paid',
         'year',
         'paid',
+        'amt_due',  
         'balance',
         'ref_no',
         'paid_months', 

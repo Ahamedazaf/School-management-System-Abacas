@@ -21,12 +21,12 @@ class StudentRecordUpdate extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:6|max:150',
+           'name' => 'required|string|min:3|max:150',
             'gender' => 'required|string',
             'phone' => 'sometimes|nullable|string|min:6|max:20',
             'email' => 'sometimes|nullable|email|max:100|unique:users,id',
             'photo' => 'sometimes|nullable|image|mimes:jpeg,gif,png,jpg|max:2048',
-            'address' => 'required|string|min:6|max:120',
+            'address' => 'nullable|string|min:6|max:120',
             'bg_id' => 'sometimes|nullable',
             'my_class_id' => 'required',
             'section_id' => 'required',

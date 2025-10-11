@@ -140,6 +140,8 @@
                         </div>
                     </div> --}}
 
+                     <button type="submit" class="btn btn-primary" style="float: right; margin: 20px;" >Submit &nbsp;&nbsp;<i class="icon-paperplane"></i></button>
+
                 </fieldset>
 
 

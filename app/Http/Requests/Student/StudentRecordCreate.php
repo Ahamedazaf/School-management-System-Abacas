@@ -21,20 +21,20 @@ class StudentRecordCreate extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:6|max:150',
+            'name' => 'required|string|min:3|max:150',
             'adm_no' => 'sometimes|nullable|alpha_num|min:3|max:150|unique:student_records',
             'gender' => 'required|string',
-            'year_admitted' => 'required|string',
+            'year_admitted' => 'nullable|string',
             'phone' => 'sometimes|nullable|string|min:6|max:20',
             'email' => 'sometimes|nullable|email|max:100|unique:users',
             'photo' => 'sometimes|nullable|image|mimes:jpeg,gif,png,jpg|max:2048',
-            'address' => 'required|string|min:6|max:120',
+            'address' => 'nullable|string|min:6|max:120',
             'bg_id' => 'sometimes|nullable',
             // 'state_id' => 'required',
             // 'lga_id' => 'required',
             // 'nal_id' => 'required',
             'my_class_id' => 'required',
-            'section_id' => 'required',
+            'section_id' => 'nullable',
             'my_parent_id' => 'sometimes|nullable',
             'dorm_id' => 'sometimes|nullable',
         ];

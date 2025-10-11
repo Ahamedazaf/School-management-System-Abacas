@@ -115,4 +115,9 @@ class StudentRepo {
    {
        return $this->activeStudents()->with('user')->get()->sortBy('user.name');
    }    
+
+   public function find($id)
+{
+    return StudentRecord::with('user')->find($id);
+}
 }

@@ -117,7 +117,7 @@
                 setTimeout(() => {
                     const bsAlert = new bootstrap.Alert(alert);
                     bsAlert.close();
-                }, 3000); // 3 seconds
+                }, 3000);
             }
  
             const addItemBtn = document.getElementById('addItemBtn');
