@@ -21,7 +21,7 @@ class StudentRecordUpdate extends FormRequest
     public function rules()
     {
         return [
-            'name' => 'required|string|min:6|max:150',
+           'name' => 'required|string|min:3|max:150',
             'gender' => 'required|string',
             'phone' => 'sometimes|nullable|string|min:6|max:20',
             'email' => 'sometimes|nullable|email|max:100|unique:users,id',

@@ -197,10 +197,18 @@ class StudentRecordController extends Controller
 
 
     /** Student Info (All Students + Classes) */
+
     public function studentinfo()
     {
-        $data['students'] = $this->student->all();   // fetch all students
-        $data['my_classes'] = $this->my_class->all(); // fetch all classes
+        $students = $this->student->all();
+
+        // Modify ADM_No to show only the number (remove the prefix)
+        foreach ($students as $student) {
+            $student->adm_no = Str::after($student->adm_no, '//');
+        }
+
+        $data['students'] = $students;
+        $data['my_classes'] = $this->my_class->all();
 
         return view('pages.support_team.students.studentinfo', $data);
     }

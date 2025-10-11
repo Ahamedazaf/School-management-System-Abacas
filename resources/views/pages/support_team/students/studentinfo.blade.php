@@ -3,7 +3,9 @@
 @section('content')
 
 
-
+@php
+use Illuminate\Support\Str;
+@endphp
 
 <div class="card">
     <div class="card-body">
@@ -33,7 +35,7 @@
                             <th>Name</th>
                             <th>ADM_No</th>
                             <th>Class</th>
-                            <th>Email</th>
+                            {{-- <th>Email</th> --}}
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -46,9 +48,10 @@
                                     src="{{ $student->user->photo ?? asset('images/default-avatar.png') }}" alt="photo">
                             </td>
                             <td>{{ $student->user->name ?? '-' }}</td>
-                            <td>{{ $student->adm_no ?? '-' }}</td>
+                            
+                            <td>{{ Str::after($student->adm_no, '') }}</td>
                             <td>{{ optional($student->my_class)->name ?? '-' }}</td>
-                            <td>{{ $student->user->email ?? '-' }}</td>
+                            {{-- <td>{{ $student->user->email ?? '-' }}</td> --}}
                             <td class="text-center">
                                 <div class="list-icons">
                                     <div class="dropdown">
@@ -153,7 +156,7 @@
                                                 class="dropdown-item"><i class="icon-check"></i> Marksheet</a> --}}
 
                                             {{--Delete--}}
-                                              @if(Qs::userIsSuperAdmin())
+                                            @if(Qs::userIsSuperAdmin())
                                             {{-- Delete --}}
                                             <a id="{{ Qs::hash($student->id) }}" onclick="confirmDelete(this.id)"
                                                 href="#" class="dropdown-item">
