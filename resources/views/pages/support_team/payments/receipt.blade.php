@@ -69,19 +69,24 @@
         <header class="flex flex-col md:flex-row justify-between items-start mb-4 border-b pb-2 gap-4">
             <div class="flex items-center space-x-3">
                 <div class="w-14 h-14 bg-gray-200 flex items-center justify-center rounded-full shadow-inner">
-                    <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none"
+                    {{-- <svg xmlns="http://www.w3.org/2000/svg" class="h-10 w-10 text-gray-500" fill="none"
                         viewBox="0 0 24 24" stroke="currentColor">
                         <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
                             d="M12 6.253v11.494m-5.247-8.982l10.494 4.494-10.494 4.494V6.253z" />
-                    </svg>
+                    </svg> --}}
+                    <div class="w-16 h-16 flex items-center justify-center rounded-full overflow-hidden shadow">
+                        <img src="{{ asset('assets/images/logo.jpg') }}" alt="School Logo"
+                            class="object-cover w-full h-full transition-transform duration-300 hover:scale-105">
+                    </div>
+
                 </div>
                 <div>
-                    <h1 class="text-xl font-bold text-gray-800">The XXXXXXXXXX</h1>
-                    <p class="text-sm font-semibold text-gray-600">INTERNATIONAL SCHOOL</p>
+
+                    <p class="text-sm font-semibold text-gray-600">PHOENIX INTERNATIONAL SCHOOL</p>
                     <div class="text-xs text-gray-500 mt-1 space-y-0.5">
-                        <p>📍 No-##, Colombo Road, Puttalam</p>
-                        <p>📞 ### ### #### / ### ### ####</p>
-                        <p>📧 admin@##################.lk</p>
+                        <p>📍 No.25, Poles Road, Puttalam, Sri Lanka</p>
+                        <p>📞 077 272 6062</p>
+                        <p>📧 phoenixinternationalputtalam@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -174,7 +179,7 @@
 
         <!-- Footer -->
         <footer class="text-center mt-3 text-xs text-gray-400">
-            Marks Trigger - ##############3
+            PHOENIX INTERNATIONAL SCHOOL
         </footer>
     </div>
 

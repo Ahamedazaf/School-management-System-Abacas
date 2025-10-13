@@ -22,7 +22,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-6">
+                <div class="col-md-6 ">
                     <div class="form-group">
                         <label>Address:</label>
                         <input value="{{ old('address') }}" class="form-control" placeholder="Address" name="address"
@@ -32,7 +32,7 @@
             </div>
 
             <div class="row">
-                <div class="col-md-3">
+                <div class="col-md-3 d-none">
                     <div class="form-group">
                         <label>Email address: </label>
                         <input type="email" value="{{ old('email') }}" name="email" class="form-control"
@@ -59,7 +59,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-3 d-none">
                     <div class="form-group">
                         <label>Telephone:</label>
                         <input value="{{ old('phone2') }}" type="text" name="phone2" class="form-control"
@@ -67,9 +67,6 @@
                     </div>
                 </div>
 
-            </div>
-
-            <div class="row">
                 <div class="col-md-3">
                     <div class="form-group">
                         <label>Date of Birth:</label>
@@ -78,6 +75,11 @@
 
                     </div>
                 </div>
+
+            </div>
+
+            <div class="row">
+                
 
                 {{-- <div class="col-md-3">
                     <div class="form-group">
@@ -129,19 +131,12 @@
                     </div>
                 </div> --}}
 
-                <div class="col-md-6">
-                    <div class="form-group">
-                        <label class="d-block">Upload Passport Photo:</label>
-                        <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo"
-                            class="form-input-styled" data-fouc>
-                        <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
-                    </div>
-                </div>
+               
             </div>
 
 
 
-            <h5>Student Data</h5>
+            
 
             <div class="row">
                 <div class="col-md-3">
@@ -160,6 +155,14 @@
 
                 <div class="col-md-3">
                     <div class="form-group">
+                        <label>Admission Number:</label>
+                        <input type="text" name="adm_no" placeholder="Admission Number" class="form-control"
+                            value="{{ old('adm_no') }}">
+                    </div>
+                </div>
+
+                <div class="col-md-3 d-none">
+                    <div class="form-group">
                         <label for="section_id">Section: <span class="text-danger">*</span></label>
                         <select data-placeholder="Select Class First" required name="section_id" id="section_id"
                             class="select-search form-control">
@@ -169,7 +172,7 @@
                     </div>
                 </div>
 
-                <div class="col-md-3">
+                <div class="col-md-3 d-none">
                     <div class="form-group">
                         <label for="my_parent_id">Parent: </label>
                         <select data-placeholder="Choose..." name="my_parent_id" id="my_parent_id"
@@ -183,8 +186,8 @@
                     </div>
                 </div>
 
-                {{-- ✅ Year Admitted now optional --}}
-                <div class="col-md-3">
+                
+                <div class="col-md-3 d-none">
                     <div class="form-group">
                         <label for="year_admitted">Year Admitted:</label>
                         <select data-placeholder="Choose..." name="year_admitted" id="year_admitted"
@@ -229,11 +232,14 @@
                     </div>
                 </div> --}}
 
-                <div class="col-md-3">
+                
+
+                 <div class="col-md-6">
                     <div class="form-group">
-                        <label>Admission Number:</label>
-                        <input type="text" name="adm_no" placeholder="Admission Number" class="form-control"
-                            value="{{ old('adm_no') }}">
+                        <label class="d-block">Upload Passport Photo:</label>
+                        <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo"
+                            class="form-input-styled" data-fouc>
+                        <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
                     </div>
                 </div>
             </div>
