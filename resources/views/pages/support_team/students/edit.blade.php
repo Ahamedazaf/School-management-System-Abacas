@@ -30,7 +30,7 @@
                     </div>
 
                     <div class="row">
-                        <div class="col-md-3">
+                        <div class="col-md-3 d-none">
                             <div class="form-group">
                                 <label>Email address: <span class="text-danger">*</span></label>
                                 <input value="{{ $sr->user->email  }}" type="email" name="email" class="form-control" placeholder="your@email.com">
@@ -55,7 +55,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 d-none">
                             <div class="form-group">
                                 <label>Telephone:</label>
                                 <input value="{{ $sr->user->phone2  }}" type="text" name="phone2" class="form-control" placeholder="" >
@@ -117,22 +117,7 @@
                                 </select>
                             </div>
                         </div> --}}
-
-                        <div class="col-md-6">
-                            <div class="form-group">
-                                <label class="d-block">Upload Passport Photo:</label>
-                                <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo" class="form-input-styled" data-fouc>
-                                <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
-                            </div>
-                        </div>
-                    </div>
-
-                
-
-                <h6>Student Data</h6>
-                
-                    <div class="row">
-                        <div class="col-md-3">
+<div class="col-md-3">
                             <div class="form-group">
                                 <label for="my_class_id">Class: </label>
                                 <select onchange="getClassSections(this.value)" name="my_class_id" required id="my_class_id" class="form-control select-search" data-placeholder="Select Class">
@@ -142,9 +127,26 @@
                                         @endforeach
                                     </select>
                             </div>
+
+                        </div>
+                       
+                    </div>
+
+                
+
+                
+                
+                    <div class="row">
+                        
+                         <div class="col-md-6">
+                            <div class="form-group">
+                                <label class="d-block">Upload Passport Photo:</label>
+                                <input value="{{ old('photo') }}" accept="image/*" type="file" name="photo" class="form-input-styled" data-fouc>
+                                <span class="form-text text-muted">Accepted Images: jpeg, png. Max file size 2Mb</span>
+                            </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 d-none">
                             <div class="form-group">
                                 <label for="section_id">Section: </label>
                                 <select name="section_id" required id="section_id" class="form-control select" data-placeholder="Select Section">
@@ -153,7 +155,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 d-none">
                             <div class="form-group">
                                 <label for="my_parent_id">Parent: </label>
                                 <select data-placeholder="Choose..."  name="my_parent_id" id="my_parent_id" class="select-search form-control">
@@ -165,7 +167,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3">
+                        <div class="col-md-3 d-none">
                             <div class="form-group">
                                 <label for="year_admitted">Year Admitted: </label>
                                 <select name="year_admitted" data-placeholder="Choose..." id="year_admitted" class="select-search form-control">

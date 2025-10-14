@@ -108,8 +108,6 @@
                                 <form id="form-{{ $hash }}" method="post" class="ajax-pay"
                                     action="{{ route('payments.pay_now', Qs::hash($uc->id)) }}">
                                     @csrf
-
-                                    {{-- One --}}
                                     <div class="d-flex flex-column">
                                         <div class="mb-2">
                                             <span class="badge badge-primary pay-amount-display-{{ $hash }}">0.00</span>
@@ -337,6 +335,7 @@
                 Payment Successful
             </div>
 
+
             <script>
                 (function() {
                         function showToast(message) {
@@ -349,20 +348,20 @@
                                 toast.style.transform = 'translateY(20px)';
                             }, 2000);
                         }
-
+ 
                         function showError(message) {
                             alert(message || 'Payment failed. Please try again.');
                         }
-
+ 
                         function calculateRow(hash) {
                             const select = document.getElementById('months-select-' + hash);
                             const totalInput = parseFloat(document.getElementById('total-input-' + hash)?.value) || 0;
                             const yearlyAmount = parseFloat(select.getAttribute('data-year-amount')) || 0;
                             const monthlyFee = yearlyAmount / 12;
-
+ 
                             let paidAmount = 0;
                             let remainder = 0;
-
+ 
                             if (totalInput > 0) {
                                 paidAmount = totalInput;
                                 remainder = totalInput % monthlyFee;
@@ -371,17 +370,17 @@
                                 paidAmount = selectedMonths * monthlyFee;
                                 remainder = paidAmount % monthlyFee;
                             }
-
+ 
                             document.querySelector('.pay-amount-display-' + hash).textContent = paidAmount.toFixed(2);
                             document.querySelector('#total-input-' + hash).value = paidAmount;
-
+ 
                             document.getElementById('pay-months-count-' + hash).textContent =
                                 '(' + Array.from(select.selectedOptions).filter(o => !o.disabled).length + ' month' +
                                 (Array.from(select.selectedOptions).length !== 1 ? 's' : '') + ')';
-
+ 
                             const pendingCell = select.closest('tr').querySelector('.pending-amount');
                             if (pendingCell) pendingCell.textContent = remainder.toFixed(2);
-
+ 
                             const hiddenWrap = document.getElementById('hidden-months-' + hash);
                             hiddenWrap.innerHTML = '';
                             Array.from(select.selectedOptions).forEach(opt => {
@@ -391,10 +390,10 @@
                                 input.value = opt.value;
                                 hiddenWrap.appendChild(input);
                             });
-
+ 
                             document.getElementById('pay-btn-' + hash).disabled = paidAmount <= 0;
                         }
-
+ 
                         document.querySelectorAll('.total-amount-input').forEach(input => {
                             input.addEventListener('input', function() {
                                 const hash = this.getAttribute('data-hash');
@@ -403,7 +402,7 @@
                                 const monthlyFee = yearlyAmount / 12;
                                 const totalEntered = parseFloat(this.value) || 0;
                                 const fullMonths = Math.floor(totalEntered / monthlyFee);
-
+ 
                                 let selectedCount = 0;
                                 Array.from(select.options).forEach(opt => {
                                     if (!opt.disabled) opt.selected = false;
@@ -414,11 +413,11 @@
                                         selectedCount++;
                                     }
                                 });
-
+ 
                                 calculateRow(hash);
                             });
                         });
-
+ 
                         document.querySelectorAll('.months-select').forEach(sel => {
                             const hash = sel.getAttribute('data-hash');
                             sel.addEventListener('change', function() {
@@ -428,82 +427,96 @@
                             });
                             calculateRow(hash);
                         });
-
-   document.querySelectorAll('.ajax-pay').forEach(form => {
-    form.addEventListener('submit', function(e) {
-        e.preventDefault(); 
-        const hash = form.id.replace('form-', '');
-        calculateRow(hash);
-
-        const totalInput = document.getElementById(`total-input-${hash}`);
-        const totalValue = parseFloat(totalInput?.value || 0);
-        const formData = new FormData(form);
-        formData.append('total_value', totalValue);
-
-        fetch(form.action, {
-            method: 'POST',
-            body: formData,
-            headers: {
-                'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').getAttribute('content'),
-                'X-Requested-With': 'XMLHttpRequest',
-                'Accept': 'application/json'
-            },
-            credentials: 'same-origin'
-        })
-        .then(async res => {
-            let data = {};
-            try { data = await res.json(); } catch (_) {}
-
-            if (!res.ok) {
-                if (res.status === 419) return showError('Session expired. Refresh and try again.');
-                return showError(data.msg || data.message || 'Server error.');
-            }
-
-            // New Add Code
-            if (data.ok) {
-                showToast('Payment Successful!');
-
-                // const paidMonths = data.data.paid_months || [];
-                // const select = document.getElementById('months-select-' + hash);
-                // const totalInput = document.getElementById('total-input-' + hash);
-
-                //  (Paid) mark update
-                // Array.from(select.options).forEach(opt => {
-                //     if (paidMonths.includes(opt.value)) {
-                //         opt.disabled = true;
-                //         opt.textContent = opt.value + ' (Paid)';
-                //         opt.style.background = '#eee';
-                //         opt.style.color = '#666';
-                //         opt.selected = false;
-                //     }
-                // });
-
-                // totalInput.value = '';
-                // document.querySelector('.pay-amount-display-' + hash).textContent = '0.00';
-                // document.getElementById('pay-months-count-' + hash).textContent = '(0 months)';
-                // document.getElementById('pay-btn-' + hash).disabled = true;
-
-                // const paidCell = select.closest('tr').querySelector('td:nth-child(5)');
-                // if (paidCell && data.data.total_paid) {
-                //     paidCell.textContent = parseFloat(data.data.total_paid).toFixed(2);
-                // }
-
-                // const preCell = select.closest('tr').querySelector('td:nth-child(6)');
-                // if (preCell && data.data.balance !== undefined) {
-                //     preCell.textContent = parseFloat(data.data.balance).toFixed(2);
-                // }
-            }
-        })
-        .catch(err => {
-            console.error('Payment error:', err);
-            showError('Network error. Please try again.');
-        });
-    });
-});
-
-
+ 
+                        document.querySelectorAll('.ajax-pay').forEach(form => {
+                            form.addEventListener('submit', function(e) {
+                                e.preventDefault();
+                                const hash = form.id.replace('form-', '');
+                                // calculateRow(hash);
+ 
+                                const totalInput = document.getElementById(`total-input-${hash}`);
+                                const totalValue = parseFloat(totalInput?.value || 0);
+                                const formData = new FormData(form);
+                                formData.append('total_value', totalValue);
+ 
+                                fetch(form.action, {
+                                        method: 'POST',
+                                        body: formData,
+                                        headers: {
+                                            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]')
+                                                .getAttribute('content'),
+                                            'X-Requested-With': 'XMLHttpRequest',
+                                            'Accept': 'application/json'
+                                        },
+                                        credentials: 'same-origin'
+                                    })
+                                    .then(async res => {
+                                        let data = {};
+                                        try {
+                                            data = await res.json();
+                                        } catch (_) {}
+ 
+                                        if (!res.ok) {
+                                            if (res.status === 419) return showError(
+                                                'Session expired. Refresh and try again.');
+                                            return showError(data.msg || data.message || 'Server error.');
+                                        }
+ 
+                                        // New Add Code
+                                        if (data.ok) {
+                                            showToast('Payment Successful!');
+ 
+                                            // const paidMonths = data.data.paid_months || [];
+                                            // const select = document.getElementById('months-select-' + hash);
+                                            // const totalInput = document.getElementById('total-input-' +
+                                            //     hash);
+ 
+                                            // Array.from(select.options).forEach(opt => {
+                                            //     if (paidMonths.includes(opt.value)) {
+                                            //         opt.disabled = true;
+                                            //         opt.textContent = opt.value + ' (Paid)';
+                                            //         opt.style.background = '#eee';
+                                            //         opt.style.color = '#666';
+                                            //         opt.selected = false;
+                                            //     }
+                                            // });
+ 
+                                            // totalInput.value = '';
+                                            // document.querySelector('.pay-amount-display-' + hash)
+                                            //     .textContent = '0.00';
+                                            // document.getElementById('pay-months-count-' + hash)
+                                            //     .textContent = '(0 months)';
+                                            // document.getElementById('pay-btn-' + hash).disabled = true;
+ 
+                                            // const paidCell = select.closest('tr').querySelector(
+                                            //     'td:nth-child(5)');
+                                            // if (paidCell && data.data.total_paid) {
+                                            //     paidCell.textContent = parseFloat(data.data.total_paid)
+                                            //         .toFixed(2);
+                                            // }
+                                            // const paidCell2 = select.closest('tr').querySelector(
+                                            //     'td:nth-child(6)');
+                                            // if (paidCell2 && data.data.adv_amount) {
+                                            //     paidCell2.textContent = parseFloat(data.data.adv_amount)
+                                            //         .toFixed(2);
+                                            // }
+ 
+                                            location.reload();
+ 
+                                            // const preCell = select.closest('tr').querySelector('td:nth-child(6)');
+                                            // if (preCell && data.data.balance !== undefined) {
+                                            //     preCell.textContent = parseFloat(data.data.balance).toFixed(2);
+                                            // }
+                                        }
+                                    })
+                                    .catch(err => {
+                                        console.error('Payment error:', err);
+                                        showError('Network error. Please try again.');
+                                    });
+                            });
+                        });
                     })();
-                    // Fine Culculate Code importand
+  // Fine Culculate Code importand
                     function calculateTotal() {
                         let total = 0;
                         document.querySelectorAll('input[name="itemAmount[]"]').forEach(input => {
@@ -511,14 +524,14 @@
                         });
                         document.getElementById('totalAmount').textContent = total.toFixed(2);
                     }
-
+ 
                     function addFineItem() {
                         const container = document.getElementById('fineItemsContainer');
                         const div = document.createElement('div');
                         div.classList.add('row', 'g-3', 'align-items-end', 'fine-item', 'mb-3', 'p-3', 'rounded-3');
                         div.style.background = '#f8f9fa';
                         div.style.border = '1px solid #e5e7eb';
-
+ 
                         div.innerHTML = `
         <div class="col-md-6">
             <label class="form-label text-muted">Item Name</label>
@@ -536,19 +549,19 @@
     `;
                         container.appendChild(div);
                     }
-
+ 
                     function removeFineItem(btn) {
                         btn.closest('.fine-item').remove();
                         calculateTotal();
                     }
-
-
+ 
+ 
                     // Fine Culculate Code importand
                     document.getElementById('fineForm').addEventListener('submit', function(e) {
                         e.preventDefault(); // Prevent normal form submit
-
+ 
                         const form = this;
-
+ 
                         fetch(form.action, {
                                 method: 'POST',
                                 body: new FormData(form),
@@ -563,12 +576,12 @@
                                 try {
                                     data = await res.json();
                                 } catch (_) {}
-
+ 
                                 if (!res.ok) {
                                     alert(data.message || 'Something went wrong.');
                                     return;
                                 }
-
+ 
                                 // Show Bootstrap success alert on page
                                 const alertDiv = document.createElement('div');
                                 alertDiv.className = 'alert alert-success alert-dismissible fade show';
@@ -580,7 +593,7 @@
             </button>
         `;
                                 form.prepend(alertDiv);
-
+ 
                                 // Optional: clear form fields
                                 form.reset();
                                 document.getElementById('totalAmount').textContent = '0.00';
@@ -610,5 +623,3 @@
             </script>
 
             @endsection
-
-            {{----}}

@@ -200,11 +200,11 @@
                 <!-- test -->
                 @if (Qs::userIsTeamSA())
                 {{-- Manage Users --}}
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('users.index') }}"
                         class="nav-link {{ in_array(Route::currentRouteName(), ['users.index', 'users.show', 'users.edit']) ? 'active' : '' }}"><i
                             class="icon-users4"></i> <span> Parents</span></a>
-                </li>
+                </li> --}}
 
 
                 {{-- Manage Classes --}}
@@ -222,11 +222,11 @@
                 </li> --}}
 
                 {{-- Manage Sections --}}
-                <li class="nav-item">
+                {{-- <li class="nav-item">
                     <a href="{{ route('sections.index') }}"
                         class="nav-link {{ in_array(Route::currentRouteName(), ['sections.index', 'sections.edit']) ? 'active' : '' }}"><i
                             class="icon-fence"></i> <span>Sections</span></a>
-                </li>
+                </li> --}}
 
                 {{-- Manage Subjects --}}
                 {{-- <li class="nav-item">

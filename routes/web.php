@@ -2,8 +2,9 @@
 
 use App\Http\Controllers\FineController;
 use App\Http\Controllers\SupportTeam\PaymentController;
+use Illuminate\Support\Facades\Auth;
 
-Auth::routes();
+require __DIR__.'/auth.php';
 
 //Route::get('/test', 'TestController@index')->name('test');
 Route::get('/privacy-policy', 'HomeController@privacy_policy')->name('privacy_policy');
