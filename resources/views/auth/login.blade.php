@@ -53,7 +53,7 @@
                             </div>
 
                            {{-- <div class="form-group">
-                                <a href="#" class="btn btn-light btn-block"><i class="icon-home"></i> Back to Home</a>
+                                <a href="#" class="btn btn-light btn-block"><i class="icon-home"><  /i> Back to Home</a>
                             </div>--}}
 
 

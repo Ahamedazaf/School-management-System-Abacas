@@ -75,7 +75,7 @@
                             d="M12 6.253v11.494m-5.247-8.982l10.494 4.494-10.494 4.494V6.253z" />
                     </svg> --}}
                     <div class="w-16 h-16 flex items-center justify-center rounded-full overflow-hidden shadow">
-                        <img src="{{ asset('assets/images/logo.jpg') }}" alt="School Logo"
+                        <img src="{{ asset('assets/images/logo.jpeg') }}" alt="School Logo"
                             class="object-cover w-full h-full transition-transform duration-300 hover:scale-105">
                     </div>
 
@@ -137,13 +137,12 @@
 
 
 
-            <!-- Payment Details -->
+           <!-- Payment Details -->
             <div class="grid grid-cols-3 gap-6 text-center text-sm mb-6">
                 <div>
-                    <span class="font-medium">Total Due :</span>
-                    <div class="border-b border-black mt-1 font-semibold text-left">
-                        {{ $pr->balance }}+
-                        {{ $payment->additional_amount ? $payment->additional_amount . ' (Addition)' : '' }}
+                    <span class="font-medium">Total Paid :</span>
+                    <div class="border-b border-black mt-1 font-semibold">
+                        {{ $pr->amt_paid }}
                     </div>
                 </div>
                 <div>
@@ -157,6 +156,8 @@
                     <div class="border-b border-black mt-1 font-semibold">
                         {{-- {{ $pr->paid ? 'CLEARED' : $pr->balance }} --}}
                         {{ optional($receipts->last())->balance }}
+                        {{ $payment->additional_amount ? '+ ' . $payment->additional_amount . ' (Addition)' : '' }}
+ 
                     </div>
                 </div>
             </div>

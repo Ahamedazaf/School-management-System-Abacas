@@ -4,7 +4,7 @@
             {{-- <h4 class="text-bold text-white">{{ Qs::getSystemName() }}</h4> --}}
         </a>
     </div>
-    {{--  <div class="navbar-brand">
+     {{-- <div class="navbar-brand">
         <a href="index.html" class="d-inline-block">
             <img src="{{ asset('global_assets/images/logo_light.png') }}" alt="">
         </a>
@@ -19,7 +19,7 @@
         </button>
     </div>
 
-    <div class="collapse navbar-collapse" id="navbar-mobile">
+    <div class="coll apse navbar-collapse" id="navbar-mobile">
         <ul class="navbar-nav">
             <li class="nav-item">
                 <a href="#" class="navbar-nav-link sidebar-control sidebar-main-toggle d-none d-md-block">

@@ -153,22 +153,22 @@ class PaymentController extends Controller
         return PDF::loadHTML($html)->download($name);
     }
 
-     public function pay_now(Request $req, $id)
-{
-    try {
-        // Decode ID if hashed
-        if (!is_numeric($id)) {
-            $id = Qs::decodeHash($id);
-        }
+    public function pay_now(Request $req, $id)
+    {
+        try {
+            // Decode ID if hashed
+            if (!is_numeric($id)) {
+                $id = Qs::decodeHash($id);
+            }
 
-        if ($req->additional_amount) {
- 
+            if ($req->additional_amount) {
+
                 $payment = ModelsPayment::where('id', $id)->first();
- 
+
                 if ($payment) {
                     $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
                     $payment->save();
- 
+
                     return response()->json([
                         'ok'  => true,
                         'msg' => 'Record Updated Successfully',
@@ -177,132 +177,131 @@ class PaymentController extends Controller
                     return response()->json(['message' => 'Payment not found'], 404);
                 }
             }
- 
-        // Get payment record
-        $pr = $this->pay->findRecord($id);
-        if (!$pr) {
-            return response()->json(['ok' => false, 'msg' => 'Payment record not found.'], 404);
-        }
- 
-        $payment = $this->pay->find($pr->payment_id);
-        if (!$payment) {
-            return response()->json(['ok' => false, 'msg' => 'Payment details not found.'], 404);
-        }
- 
-        // Handle additional payment (no months selected)
-        if (!$req->filled('months') || count($req->months ?? []) === 0) {
-            $additional = (float) $req->total_value;
-            if ($additional <= 0) {
-                return response()->json(['ok' => false, 'msg' => 'Invalid payment amount.'], 400);
+
+            // Get payment record
+            $pr = $this->pay->findRecord($id);
+            if (!$pr) {
+                return response()->json(['ok' => false, 'msg' => 'Payment record not found.'], 404);
             }
- 
-            $total_paid = (float) ($pr->amt_paid + $additional);
-            $balance = round(max(0, $payment->amount - $total_paid), 2);
-            $fullyPaid = $balance <= 0 ? 1 : 0;
- 
-            $this->pay->updateRecord($id, [
-                'amt_paid'   => $total_paid,
-                'today_paid' => $additional,
-                'balance'    => $balance,
-                'paid'       => $fullyPaid,
-                'updated_at' => now(),
+
+            $payment = $this->pay->find($pr->payment_id);
+            if (!$payment) {
+                return response()->json(['ok' => false, 'msg' => 'Payment details not found.'], 404);
+            }
+
+            // Handle additional payment (no months selected)
+            if (!$req->filled('months') || count($req->months ?? []) === 0) {
+                $additional = (float) $req->total_value;
+                if ($additional <= 0) {
+                    return response()->json(['ok' => false, 'msg' => 'Invalid payment amount.'], 400);
+                }
+
+                $total_paid = (float) ($pr->amt_paid + $additional);
+                $balance = round(max(0, $payment->amount - $total_paid), 2);
+                $fullyPaid = $balance <= 0 ? 1 : 0;
+
+                $this->pay->updateRecord($id, [
+                    'amt_paid'   => $total_paid,
+                    'today_paid' => $additional,
+                    'balance'    => $balance,
+                    'paid'       => $fullyPaid,
+                    'updated_at' => now(),
+                ]);
+
+                $this->pay->createReceipt([
+                    'amt_paid' => $additional,
+                    'balance'  => $balance,
+                    'pr_id'    => $id,
+                    'year'     => $this->year,
+                ]);
+
+                return response()->json([
+                    'ok'  => true,
+                    'msg' => 'Additional payment recorded successfully.',
+                    'data' => [
+                        'amt_paid_now' => $additional,
+                        'total_paid'   => $total_paid,
+                        'balance'      => $balance,
+                        'fully_paid'   => (bool) $fullyPaid,
+                    ],
+                ], 200);
+            }
+
+            // Otherwise handle month-based payment
+            $validated = $req->validate([
+                'months'   => ['required', 'array', 'min:1'],
+                'months.*' => ['string']
             ]);
- 
+
+            $alreadyPaidMonths = $pr->paid_months
+                ? (is_array($pr->paid_months) ? $pr->paid_months : json_decode($pr->paid_months, true))
+                : [];
+
+            $selectedMonths = collect($validated['months'])
+                ->map(fn($m) => trim((string)$m))
+                ->filter()
+                ->unique()
+                ->values()
+                ->all();
+
+            $newMonths = array_values(array_diff($selectedMonths, $alreadyPaidMonths));
+            if (count($newMonths) === 0) {
+                return response()->json(['ok' => false, 'msg' => 'No new months selected.'], 400);
+            }
+
+            $updatedMonths = array_values(array_unique(array_merge($alreadyPaidMonths, $newMonths)));
+            $monthlyAmount = round($payment->amount / 12, 2);
+            $newPaymentAmount = round($monthlyAmount * count($newMonths), 2);
+
+            $total_paid = (float) ($pr->amt_paid + $req->total_value ?? 0);
+            $balance = round(max(0, $payment->amount - $total_paid), 2);
+            $fullyPaid = count($updatedMonths) >= 12 || $balance <= 0 ? 1 : 0;
+
+            $this->pay->updateRecord($id, [
+                'amt_paid'    => $total_paid,
+                'today_paid'  => $req->total_value,
+                'balance'     => $balance,
+                'paid'        => $fullyPaid,
+                'paid_months' => json_encode($updatedMonths),
+                'updated_at'  => now(),
+            ]);
+
             $this->pay->createReceipt([
-                'amt_paid' => $additional,
+                'amt_paid' => $req->total_value,
                 'balance'  => $balance,
                 'pr_id'    => $id,
                 'year'     => $this->year,
             ]);
- 
+
             return response()->json([
                 'ok'  => true,
-                'msg' => 'Additional payment recorded successfully.',
+                'msg' => 'Monthly payment recorded successfully.',
                 'data' => [
-                    'amt_paid_now' => $additional,
+                    'amt_paid_now' => $req->total_value,
                     'total_paid'   => $total_paid,
                     'balance'      => $balance,
+                    'paid_months'  => $updatedMonths,
                     'fully_paid'   => (bool) $fullyPaid,
                 ],
             ], 200);
+        } catch (ValidationException $e) {
+            return response()->json([
+                'ok'     => false,
+                'msg'    => $e->getMessage(),
+                'errors' => $e->errors()
+            ], 422);
+        } catch (Throwable $e) {
+            return response()->json([
+                'ok'    => false,
+                'msg'   => 'Unexpected server error while processing payment.',
+                'debug' => [
+                    'message' => $e->getMessage(),
+                    'line'    => $e->getLine(),
+                    'file'    => $e->getFile(),
+                ]
+            ], 500);
         }
- 
-        // Otherwise handle month-based payment
-        $validated = $req->validate([
-            'months'   => ['required', 'array', 'min:1'],
-            'months.*' => ['string']
-        ]);
- 
-        $alreadyPaidMonths = $pr->paid_months
-            ? (is_array($pr->paid_months) ? $pr->paid_months : json_decode($pr->paid_months, true))
-            : [];
- 
-        $selectedMonths = collect($validated['months'])
-            ->map(fn($m) => trim((string)$m))
-            ->filter()
-            ->unique()
-            ->values()
-            ->all();
- 
-        $newMonths = array_values(array_diff($selectedMonths, $alreadyPaidMonths));
-        if (count($newMonths) === 0) {
-            return response()->json(['ok' => false, 'msg' => 'No new months selected.'], 400);
-        }
- 
-        $updatedMonths = array_values(array_unique(array_merge($alreadyPaidMonths, $newMonths)));
-        $monthlyAmount = round($payment->amount / 12, 2);
-        $newPaymentAmount = round($monthlyAmount * count($newMonths), 2);
- 
-        $total_paid = (float) ($pr->amt_paid + $req->total_value ?? 0);
-        $balance = round(max(0, $payment->amount - $total_paid), 2);
-        $fullyPaid = count($updatedMonths) >= 12 || $balance <= 0 ? 1 : 0;
- 
-        $this->pay->updateRecord($id, [
-            'amt_paid'    => $total_paid,
-            'today_paid'  => $req->total_value,
-            'balance'     => $balance,
-            'paid'        => $fullyPaid,
-            'paid_months' => json_encode($updatedMonths),
-            'updated_at'  => now(),
-        ]);
- 
-        $this->pay->createReceipt([
-            'amt_paid' => $req->total_value,
-            'balance'  => $balance,
-            'pr_id'    => $id,
-            'year'     => $this->year,
-        ]);
- 
-        return response()->json([
-            'ok'  => true,
-            'msg' => 'Monthly payment recorded successfully.',
-            'data' => [
-                'amt_paid_now' => $req->total_value,
-                'total_paid'   => $total_paid,
-                'balance'      => $balance,
-                'paid_months'  => $updatedMonths,
-                'fully_paid'   => (bool) $fullyPaid,
-            ],
-        ], 200);
- 
-    } catch (ValidationException $e) {
-        return response()->json([
-            'ok'     => false,
-            'msg'    => $e->getMessage(),
-            'errors' => $e->errors()
-        ], 422);
-    } catch (Throwable $e) {
-        return response()->json([
-            'ok'    => false,
-            'msg'   => 'Unexpected server error while processing payment.',
-            'debug' => [
-                'message' => $e->getMessage(),
-                'line'    => $e->getLine(),
-                'file'    => $e->getFile(),
-            ]
-        ], 500);
     }
-}
 
 
     public function manage($class_id = null)
@@ -449,6 +448,16 @@ class PaymentController extends Controller
             ->join('student_records', 'users.id', '=', 'student_records.user_id')
             ->where('users.user_type', 'student');
 
+        $amount = 0;
+        if ($request->has('class_id') && $request->class_id) {
+            // Get the amount for the specific class
+            $amount = ModelsPayment::where('my_class_id', $request->class_id)
+                ->sum('amount'); // sum in case multiple records exist
+        } else {
+            // Get the total sum of all amounts
+            $amount = ModelsPayment::sum('amount');
+        }
+
         if ($request->filled('class_id')) {
             $studentsQuery->where('student_records.my_class_id', $request->class_id);
         }
@@ -457,23 +466,25 @@ class PaymentController extends Controller
             ->select('users.*', 'student_records.my_class_id')
             ->get();
 
-        $studentsWithPayments = $students->map(function ($student) {
+       $studentsWithPayments = $students->map(function ($student) {
 
-            $amountPaidThisMonth = DB::table('payment_records')
-                ->where('student_id', $student->id)
-                ->whereYear('created_at', now()->year)
-                ->whereMonth('created_at', now()->month)
-                ->sum('amt_paid');
+    $amountPaidThisMonth = DB::table('payment_records')
+        ->where('student_id', $student->id)
+        ->whereYear('created_at', now()->year)
+        ->whereMonth('created_at', now()->month)
+        ->sum('amt_paid');
 
-            $monthlyFee = 10000;
-            $paid = min($amountPaidThisMonth, $monthlyFee);
-            $pending = max($monthlyFee - $paid, 0);
+    $monthlyFee = 10000;
+    $paid = $amountPaidThisMonth; // <-- no limit now
+    $pending = max($monthlyFee - $paid, 0);
 
-            $student->fee_demand      = $monthlyFee;
-            $student->paid_this_month = $paid;
-            $student->pending         = $pending;
-            return $student;
-        });
+    $student->fee_demand      = $monthlyFee;
+    $student->paid_this_month = $paid;
+    $student->pending         = $pending;
+    return $student;
+});
+
+
 
         $totalMonthlyFee    = $studentsWithPayments->sum('fee_demand');
         $totalPaidThisMonth = $studentsWithPayments->sum('paid_this_month');
@@ -484,6 +495,8 @@ class PaymentController extends Controller
             'current_month_paid' => $totalPaidThisMonth,
             'pending_amount'     => $totalPendingAmount,
             'students'           => $studentsWithPayments,
+            'yearly_amount_sum'     => $amount,
+            'students_count'     => $studentsWithPayments->count(),
         ]);
     }
 

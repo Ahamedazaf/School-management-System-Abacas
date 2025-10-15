@@ -161,10 +161,10 @@
                                         <a href="#" class="list-icons-item" data-toggle="dropdown"><i
                                                 class="icon-menu9"></i></a>
                                         <div class="dropdown-menu dropdown-menu-left">
-                                            <a id="{{ $hash }}" onclick="confirmReset(this.id)" href="#"
+                                            {{-- <a id="{{ $hash }}" onclick="confirmReset(this.id)" href="#"
                                                 class="dropdown-item">
                                                 <i class="icon-reset"></i> Reset Payment
-                                            </a>
+                                            </a> --}}
                                             <form method="post" id="item-reset-{{ $hash }}"
                                                 action="{{ route('payments.reset_record', $uc->id) }}" class="hidden">
                                                 @csrf @method('delete')

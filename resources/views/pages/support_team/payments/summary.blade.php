@@ -5,8 +5,8 @@
 
 <div class="row">
 
-     {{-- Total Paid This Month --}}
-    <div class="col-lg-4 col-md-6 mb-4">
+    {{-- Total Paid This Month --}}
+    {{-- <div class="col-lg-4 col-md-6 mb-4">
         <div class="card shadow-sm border-left-primary h-100">
             <div class="card-body text-center">
                 <div class="mb-2">
@@ -17,7 +17,7 @@
                 <h3 class="font-weight-bold">{{ number_format($total_fee, 2) }}</h3>
             </div>
         </div>
-    </div>
+    </div> --}}
 
     {{-- Total Payments --}}
     <div class="col-lg-4 col-md-6 mb-4">
@@ -32,7 +32,7 @@
         </div>
     </div>
 
-   
+
 
     {{-- Pending Amount This Month --}}
     <div class="col-lg-4 col-md-6 mb-4">
@@ -42,7 +42,7 @@
                     <i class="icon-hour-glass2 icon-4x text-danger"></i>
                 </div>
                 <h5 class="card-title text-uppercase text-muted">Pending Amount</h5>
-                <h3 class="font-weight-bold">{{ number_format($pending_amount, 2) }}</h3>
+                <h3 class="font-weight-bold">{{ number_format(($students_count * $yearly_amount_sum) -$current_month_paid, 2) }}</h3>
             </div>
         </div>
     </div>
@@ -73,7 +73,6 @@
     </div>
 </div>
 @if(isset($students) && $students->count() > 0)
-
 <div class="card shadow-sm mt-4">
     <div class="card-header bg-light">
         <h6 class="mb-0">Students in Selected Class</h6>
@@ -84,32 +83,28 @@
                 <tr>
                     <th>S / ID</th>
                     <th>Student Name</th>
-                    <th>Monthly Fee</th>
+                    {{-- <th>Monthly Fee</th> --}}
                     <th>Paid To This Month</th>
                     <th>Status</th>
-
                 </tr>
             </thead>
-           <tbody>
-    @foreach($students as $index => $student)
-    <tr>
-        <td>{{ $index + 1 }}</td>
-        <td>{{ $student->name }}</td>
-        <td>{{ number_format($student->fee_demand, 2) }}</td>
-
-        <td>{{ number_format($student->paid_this_month, 2) }}</td>
-
-        <td>
-            @if($student->pending > 0)
-                <span class="badge badge-danger">Pending</span>
-            @else
-                <span class="badge badge-success">No Pending</span>
-            @endif
-        </td>
-    </tr>
-    @endforeach
-</tbody>
-
+            <tbody>
+                @foreach($students as $index => $student)
+                <tr>
+                    <td>{{ $index + 1 }}</td>
+                    <td>{{ $student->name }}</td>
+                    {{-- <td>{{ number_format($student->fee_demand, 2) }}</td> --}}
+                    <td>{{ number_format($student->paid_this_month, 2) }}</td>
+                    <td>
+                        @if($student->pending > 0)
+                        <span class="badge badge-danger">Pending</span>
+                        @else
+                        <span class="badge badge-success">No Pending</span>
+                        @endif
+                    </td>
+                </tr>
+                @endforeach
+            </tbody>
         </table>
     </div>
 </div>
@@ -118,5 +113,4 @@
     No students found for this class.
 </div>
 @endif
-
 @endsection
