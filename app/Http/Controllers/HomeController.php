@@ -39,7 +39,6 @@ class HomeController extends Controller
         return view('pages.other.terms_of_use', $data);
     }
 
-    // dashboard for Support Admin and Support Team
     public function dashboard()
     {
         $d = [];
@@ -48,14 +47,23 @@ class HomeController extends Controller
             $d['users'] = $this->user->getAll();
         }
 
-        $d['total_amount'] = Payment::sum('total_amount');
+        $currentYear = Qs::getSetting('current_session');
+        $d['total_amount'] = DB::table('student_records as sr')
+            ->join('payments as p', function ($join) use ($currentYear) {
+                $join->on('sr.my_class_id', '=', 'p.my_class_id')
+                    ->where('p.year', '=', $currentYear);
+            })
+            ->where('sr.session', $currentYear)
+            ->sum('p.amount');
 
         $d['total_paid_till_now'] = DB::table('payment_records')
-            ->whereYear('created_at', Carbon::now()->year)
-            ->whereMonth('created_at', '<=', Carbon::now()->month)
+            ->where('year', $currentYear)
+            ->whereNotNull('amt_paid')
             ->sum('amt_paid');
 
         $d['pending_amount'] = $d['total_amount'] - $d['total_paid_till_now'];
+
+        $d['current_month'] = Carbon::now()->format('F');
 
         return view('pages.support_team.dashboard', $d);
     }

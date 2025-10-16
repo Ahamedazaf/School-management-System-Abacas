@@ -29,7 +29,7 @@ class UsersTableSeeder extends Seeder
 
         $d = [
 
-            ['name' => 'PHOENIX INTERNATIONAL SCHOOL',
+            ['name' => 'SIP Abacus Puttalam',
                 'email' => 'admin@gmail.com',
                 'username' => 'admin',
                 'password' => $password,

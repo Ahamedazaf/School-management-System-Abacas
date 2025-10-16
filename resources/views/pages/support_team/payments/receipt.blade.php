@@ -82,11 +82,11 @@
                 </div>
                 <div>
 
-                    <p class="text-sm font-semibold text-gray-600">PHOENIX INTERNATIONAL SCHOOL</p>
+                    <p class="text-sm font-semibold text-gray-600">SIP Abacus Puttalam </p>
                     <div class="text-xs text-gray-500 mt-1 space-y-0.5">
-                        <p>📍 No.25, Poles Road, Puttalam, Sri Lanka</p>
-                        <p>📞 077 272 6062</p>
-                        <p>📧 phoenixinternationalputtalam@gmail.com</p>
+                        <p>📍 No.25, Poles Road, Puttalam</p>
+                        <p>📞 076 656 2213</p>
+                        <p>📧 sipabacusputtalam@gmail.com</p>
                     </div>
                 </div>
             </div>
@@ -137,7 +137,7 @@
 
 
 
-           <!-- Payment Details -->
+              <!-- Payment Details -->
             <div class="grid grid-cols-3 gap-6 text-center text-sm mb-6">
                 <div>
                     <span class="font-medium">Total Paid :</span>
@@ -149,6 +149,7 @@
                     <span class="font-medium">Paid Today :</span>
                     <div class="border-b border-black mt-1 font-semibold">
                         {{ optional($receipts->last())->amt_paid }}
+                        {{-- {{ $pr->additional_amount_paid ? '+ ' . $pr->additional_amount_paid . ' (Addition)' : '' }} --}}
                     </div>
                 </div>
                 <div>
@@ -156,11 +157,12 @@
                     <div class="border-b border-black mt-1 font-semibold">
                         {{-- {{ $pr->paid ? 'CLEARED' : $pr->balance }} --}}
                         {{ optional($receipts->last())->balance }}
-                        {{ $payment->additional_amount ? '+ ' . $payment->additional_amount . ' (Addition)' : '' }}
- 
+                        {{ $payment->additional_amount - $pr->additional_amount_paid > 0? '+ ' . 
+                        ($payment->additional_amount - $pr->additional_amount_paid) . ' (Addition)': '' }}
                     </div>
                 </div>
             </div>
+            
 
             <!-- Signature -->
             <div class="flex justify-between items-end">
@@ -180,7 +182,7 @@
 
         <!-- Footer -->
         <footer class="text-center mt-3 text-xs text-gray-400">
-            PHOENIX INTERNATIONAL SCHOOL
+            SIP Abacus Puttalam
         </footer>
     </div>
 

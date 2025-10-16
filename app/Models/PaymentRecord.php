@@ -10,6 +10,7 @@ class PaymentRecord extends Eloquent
     protected $fillable = [
         'student_id',
         'payment_id',
+        'additional_amount_paid',
         'amt_paid',
         'today_paid',
         'year',

@@ -157,31 +157,31 @@
         $('#ajax-reg-t-0').get(0).click();
     });
 
-    $('form.ajax-pay').on('submit', function(ev){
-        ev.preventDefault();
-        submitForm($(this), 'store');
+//     $('form.ajax-pay').on('submit', function(ev){
+//         ev.preventDefault();
+//         submitForm($(this), 'store');
 
-//        Retrieve IDS
-        var form_id = $(this).attr('id');
-        var td_amt = $('td#amt-'+form_id);
-        var td_amt_paid = $('td#amt_paid-'+form_id);
-        var td_bal = $('td#bal-'+form_id);
-        var input = $('#val-'+form_id);
+// //        Retrieve IDS
+//         var form_id = $(this).attr('id');
+//         var td_amt = $('td#amt-'+form_id);
+//         var td_amt_paid = $('td#amt_paid-'+form_id);
+//         var td_bal = $('td#bal-'+form_id);
+//         var input = $('#val-'+form_id);
 
-        // Get Values
-        var amt = parseInt(td_amt.data('amount'));
-        var amt_paid = parseInt(td_amt_paid.data('amount'));
-        var amt_input = parseInt(input.val());
+//         // Get Values
+//         var amt = parseInt(td_amt.data('amount'));
+//         var amt_paid = parseInt(td_amt_paid.data('amount'));
+//         var amt_input = parseInt(input.val());
 
-//        Update Values
-        amt_paid = amt_paid + amt_input;
-        var bal = amt - amt_paid;
+// //        Update Values
+//         amt_paid = amt_paid + amt_input;
+//         var bal = amt - amt_paid;
 
-        td_bal.text(''+bal);
-        td_amt_paid.text(''+amt_paid).data('amount', ''+amt_paid);
-        input.attr('max', bal);
-        bal < 1 ? $('#'+form_id).fadeOut('slow').remove() : '';
-    });
+//         td_bal.text(''+bal);
+//         td_amt_paid.text(''+amt_paid).data('amount', ''+amt_paid);
+//         input.attr('max', bal);
+//         bal < 1 ? $('#'+form_id).fadeOut('slow').remove() : '';
+//     });
 
     $('form.ajax-store').on('submit', function(ev){
         ev.preventDefault();

@@ -100,11 +100,13 @@
                         <tr>
                             <th>#</th>
                             <th>Title</th>
-                            <th>Amount</th>
+                            <th>Yearly Amount</th>
+                            <th>Additional Items</th>
+                            <th>Additional Amount</th>
                             <th>Ref_No</th>
                             <th>Class</th>
                             {{-- <th>Method</th> --}}
-                            <th>Info</th>
+                            <th>Fee Description</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -114,6 +116,20 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $p->title }}</td>
                             <td>{{ $p->amount }}</td>
+                            <td>
+                                @php
+                                $items = $p->additional_items ? json_decode($p->additional_items, true) : [];
+                                @endphp
+                                @if (!empty($items))
+                                <ul class="list-unstyled mb-0">
+                                    @foreach ($items as $item)
+                                    <li>{{ $item['name'] }}: LKR {{ number_format($item['amount'], 2) }}</li>
+                                    @endforeach
+                                </ul>
+                                @else
+                                N/A
+                                @endif
+                            <td>{{ $p->additional_amount }}</td>
                             <td>{{ $p->ref_no }}</td>
                             <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
                             {{-- <td>{{ ucwords($p->method) }}</td> --}}
@@ -154,11 +170,13 @@
                         <tr>
                             <th>#</th>
                             <th>Title</th>
-                            <th>Amount</th>
+                            <th>YearlyAmount</th>
+                            <th>Additional Items</th>
+                            <th>Additional Amount</th>
                             <th>Ref_No</th>
                             <th>Class</th>
                             {{-- <th>Method</th> --}}
-                            <th>Info</th>
+                            <th>Fee Description</th>
                             <th>Action</th>
                         </tr>
                     </thead>
@@ -168,6 +186,20 @@
                             <td>{{ $loop->iteration }}</td>
                             <td>{{ $p->title }}</td>
                             <td>{{ $p->amount }}</td>
+                            <td>
+                                @php
+                                $items = $p->additional_items ? json_decode($p->additional_items, true) : [];
+                                @endphp
+                                @if (!empty($items))
+                                <ul class="list-unstyled mb-0">
+                                    @foreach ($items as $item)
+                                    <li>{{ $item['name'] }}: LKR {{ number_format($item['amount'], 2) }}</li>
+                                    @endforeach
+                                </ul>
+                                @else
+                                N/A
+                                @endif
+                            <td>{{ $p->additional_amount }}</td>
                             <td>{{ $p->ref_no }}</td>
                             <td>{{ $p->my_class_id ? $p->my_class->name : '' }}</td>
                             {{-- <td>{{ ucwords($p->method) }}</td> --}}

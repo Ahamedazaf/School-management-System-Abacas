@@ -79,7 +79,7 @@ class PaymentController extends Controller
 
     // Fine And Invoice
 
-    public function invoice($st_id, $year = null)
+  public function invoice($st_id, $year = null)
     {
         if (!$st_id) {
             return Qs::goWithDanger();
@@ -99,6 +99,26 @@ class PaymentController extends Controller
 
         // ✅ Instead of querying by student_id, just get the first payment record
         $d['additional_payment'] = $pr->first();
+        $stud_pay_rec = PaymentRecord::where('student_id', $st_id)->first();
+
+        if (!$stud_pay_rec) {
+            // Auto-create missing payment record for the student
+            $payment = ModelsPayment::where('my_class_id', $d['sr']->my_class_id)
+                ->where('year', $this->year)
+                ->first();
+
+            if ($payment) {
+                $stud_pay_rec = PaymentRecord::create([
+                    'student_id' => $st_id,
+                    'payment_id' => $payment->id,
+                    'year'       => $this->year,
+                    'ref_no'     => mt_rand(100000, 99999999),
+                ]);
+            }
+        }
+
+        // Avoid null access if still missing
+        $d['additional_payment_paid'] = $stud_pay_rec->additional_amount_paid ?? 0;
 
         return view('pages.support_team.payments.invoice', $d);
     }
@@ -153,7 +173,7 @@ class PaymentController extends Controller
         return PDF::loadHTML($html)->download($name);
     }
 
-    public function pay_now(Request $req, $id)
+   public function pay_now(Request $req, $id)
     {
         try {
             // Decode ID if hashed
@@ -162,21 +182,14 @@ class PaymentController extends Controller
             }
 
             if ($req->additional_amount) {
-
-                $payment = ModelsPayment::where('id', $id)->first();
-
-                if ($payment) {
-                    $payment->additional_amount = $payment->additional_amount - $req->additional_amount;
-                    $payment->save();
-
-                    return response()->json([
-                        'ok'  => true,
-                        'msg' => 'Record Updated Successfully',
-                    ], 200);
-                } else {
-                    return response()->json(['message' => 'Payment not found'], 404);
-                }
-            }
+                PaymentRecord::where('student_id', $req->student_id)
+                    ->increment('additional_amount_paid', $req->additional_amount);
+                    
+                return response()->json([
+                    'ok'  => true,
+                    'msg' => 'Record Updated Successfully',
+                ], 200);
+            } 
 
             // Get payment record
             $pr = $this->pay->findRecord($id);
@@ -356,24 +369,32 @@ class PaymentController extends Controller
         return Qs::goToRoute(['payments.manage', $class_id]);
     }
 
-    public function store(PaymentCreate $req)
+  public function store(PaymentCreate $req)
     {
-        $data          = $req->all();
-        $data['year']  = $this->year;
+        $data = $req->all();
+        $data['year']   = $this->year;
         $data['ref_no'] = Pay::genRefCode();
 
-        $payment  = $this->pay->create($data);
-        $students = $this->student->getRecord([])->get();
+        // Create payment record
+        $payment = $this->pay->create($data);
 
-        foreach ($students as $st) {
-            $pr = [
-                'student_id' => $st->user_id,
-                'payment_id' => $payment->id,
-                'year'       => $this->year,
-            ];
-            $record = $this->pay->createRecord($pr);
-            if (!$record->ref_no) {
-                $record->update(['ref_no' => mt_rand(100000, 99999999)]);
+        // If class selected, create payment records only for that class
+        if (!empty($req->my_class_id)) {
+            $students = $this->student->getRecord(['my_class_id' => $req->my_class_id])->get();
+
+            foreach ($students as $st) {
+                $pr = [
+                    'student_id' => $st->user_id,
+                    'payment_id' => $payment->id,
+                    'year'       => $this->year,
+                ];
+
+                $record = $this->pay->createRecord($pr);
+
+                // Generate a reference number if not exists
+                if (!$record->ref_no) {
+                    $record->update(['ref_no' => mt_rand(100000, 99999999)]);
+                }
             }
         }
 

@@ -84,7 +84,7 @@
 
                     <div class="form-group row">
                         <label for="description"
-                            class="col-lg-3 col-form-label font-weight-semibold">Description</label>
+                            class="col-lg-3 col-form-label font-weight-semibold">Fee Description</label>
                         <div class="col-lg-9">
                             <input class="form-control" value="{{ old('description') }}" name="description"
                                 id="description" type="text">
@@ -120,7 +120,7 @@
                                         </svg>
                                     </button>
                                 </div> --}}
-                            {{-- </div> --}}
+                                {{-- </div> --}}
                         </div>
                         <!-- Add Item Button -->
                         <div class="mt-2">
